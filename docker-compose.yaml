@@ -1,121 +1,40 @@
 services:
-  # datastore:
-  #   build: .
-  #   command: >
-  #     uvicorn server:app
-  #     --host 0.0.0.0
-  #     --port 443
-  #     --ssl-keyfile /secrets/key.pem
-  #     --ssl-certfile /secrets/cert.pem
-  #   restart: "no"
-  #   environment:
-  #     ENVIRONMENT: container
-  #     LOCAL_TIMEZONE: America/New_York
-  #     CERT_PASSKEY: ${CERT_PASSKEY}
-  #     DATABASE_URL: postgres+asyncpg://user@postgres/chatterboxdb
-  #     DATABASE_PREFIX: postgres+asyncpg://
-  #     DATABASE_NAME: chatterboxdb
-  #     DB_SERVICE_NAME: postgres
-  #     DB_PORT: 5432
-  #     REDIS_HOST: redis
-  #     REDIS_PORT: 6379
-  #     REDIS_DB_INDEX: 0
-  #   volumes:
-  #     - ./logs:/server/logs
-  #   ports:
-  #     - "443:443"
-  #   secrets:
-  #     - postgres_user_password
-  #     - testdb_user_password
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #     test_postgres:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #     testredis:
-  #       condition: service_healthy
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:443/test"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-
   postgres:
     image: postgres:16.3
     restart: always
-    env_file: .env
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER_FILE: /run/secrets/postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-      POSTGRES_SUPERUSER: ${POSTGRES_SUPERUSER}
-      POSTGRES_INITDB_ARGS: "--username=${POSTGRES_SUPERUSER} --pwfile=/run/secrets/postgres_superuser_password"
-    secrets:
-      - postgres_user
-      - postgres_password
-      - postgres_superuser_password
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: chatterboxdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_superuser_password.txt
+      POSTGRES_INITDB_ARGS: "--username=postgres --pwfile=/run/secrets/postgres_superuser_password.txt"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./secrets/datastore/:/run/secrets/
       - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    ports:
+      - "5432:5432"
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U $(cat /run/secrets/postgres_user) -d ${POSTGRES_DB}",
-        ]
+      test: "pg_isready -U postgres -d chatterboxdb -h localhost -p 5432 > /tmp/pg_isready.log 2>&1 || (cat /tmp/pg_isready.log && exit 1)"
       interval: 30s
       timeout: 10s
       retries: 5
 
-  test_postgres:
+  test-postgres:
     image: postgres:16.3
     restart: always
-    env_file: .env.test
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER_FILE: /run/secrets/test_postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/test_postgres_password
-      POSTGRES_SUPERUSER: ${POSTGRES_SUPERUSER}
-      POSTGRES_INITDB_ARGS: "--username=${POSTGRES_SUPERUSER} --pwfile=/run/secrets/test_postgres_superuser_password"
-    secrets:
-      - test_postgres_user
-      - test_postgres_password
-      - test_postgres_superuser_password
-    ports:
-      - "5433:5432"
+      POSTGRES_DB: chatterbox_testdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/test_postgres_superuser_password.txt
+      POSTGRES_INITDB_ARGS: "--username=postgres --pwfile=/run/secrets/test_postgres_superuser_password.txt"
     volumes:
       - test_postgres_data:/var/lib/postgresql/data
-      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U $(cat /run/secrets/test_postgres_user) -d ${POSTGRES_DB}",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  redis:
-    image: redis:7.0
+      - ./secrets/datastore/:/run/secrets/
+      - ./init-test-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     ports:
-      - "6379:6379"
+      - "5433:5432"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  test-redis:
-    image: redis:7.0
-    ports:
-      - "63790:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: "pg_isready -U postgres -d chatterboxdb -h localhost -p 5432 > /tmp/pg_isready.log 2>&1 || (cat /tmp/pg_isready.log && exit 1)"
       interval: 30s
       timeout: 10s
       retries: 5
@@ -126,18 +45,179 @@ volumes:
   test_postgres_data:
     driver: local
 
-secrets:
-  postgres_user:
-    file: ./secrets/postgres_user.txt
-  postgres_password:
-    file: ./secrets/postgres_password.txt
-  postgres_superuser_password:
-    file: ./secrets/postgres_superuser_password.txt
-  test_postgres_user:
-    file: ./secrets/test_postgres_user.txt
-  test_postgres_password:
-    file: ./secrets/test_postgres_password.txt
-  test_postgres_superuser_password:
-    file: ./secrets/test_postgres_superuser_password.txt
-  testdb_user_password:
-    file: ./secrets/testdb_user_password.txt
+  # test-postgres:
+  #   image: postgres:16.3
+  #   restart: always
+  #   environment:
+  #     POSTGRES_DB: chatterbox_testdb
+  #     POSTGRES_USER_FILE: /run/secrets/test_postgres_user.txt
+  #     POSTGRES_PASSWORD_FILE: /run/secrets/test_postgres_password.txt
+  #     POSTGRES_INITDB_ARGS: "--username=postgres --pwfile=/run/secrets/test_postgres_superuser_password.txt"
+  #   volumes:
+  #     - test_postgres_data:/var/lib/postgresql/data
+  #     - ./secrets/datastore/:/run/secrets/
+  #     - ./init-test-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+  #   ports:
+  #     - "5433:5432"
+  #   healthcheck:
+  #     test: "pg_isready -U $(cat /run/secrets/test_postgres_user.txt) -d chatterboxdb -h localhost -p 5432 > /tmp/pg_isready.log 2>&1 || (cat /tmp/pg_isready.log && exit 1)"
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+# volumes:
+#   postgres_data:
+#     driver: local
+# test_postgres_data:
+#   driver: local
+# services:
+#   datastore:
+#     build:
+#       context: ./services/datastore
+#       dockerfile: Dockerfile
+#     command: >
+#       uvicorn server:app
+#       --host 0.0.0.0
+#       --port 443
+#       --ssl-keyfile /run/secrets/cert/key.pem
+#       --ssl-certfile /run/secrets/cert/cert.pem
+#     restart: "no"
+#     environment:
+#       ENVIRONMENT: container
+#       LOCAL_TIMEZONE: America/New_York
+#       CERT_PASSKEY: ${CERT_PASSKEY}
+#       DATABASE_URL: postgres+asyncpg://user@postgres/chatterboxdb
+#       DATABASE_PREFIX: postgres+asyncpg://
+#       DATABASE_NAME: chatterboxdb
+#       DB_SERVICE_NAME: postgres
+#       DB_PORT: 5432
+#       REDIS_HOST: redis
+#       REDIS_PORT: 6379
+#       REDIS_DB_INDEX: 0
+#     volumes:
+#       - ./logs:/server/logs
+#       - ./secrets/cert:/run/secrets/cert
+#       - ./secrets/datastore:/run/secrets/datastore
+#     ports:
+#       - "443:443"
+#     secrets:
+#       - postgres_user
+#       - postgres_password
+#       - test_postgres_user
+#       - test_postgres_password
+#     depends_on:
+#       postgres:
+#         condition: service_healthy
+#       test_postgres:
+#         condition: service_healthy
+#       redis:
+#         condition: service_healthy
+#       test-redis:
+#         condition: service_healthy
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:443/test"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
+
+#   postgres:
+#     image: postgres:16.3
+#     restart: always
+#     env_file: .env
+#     environment:
+#       POSTGRES_DB: ${POSTGRES_DB}
+#       POSTGRES_USER_FILE: /run/secrets/datastore/postgres_user.txt
+#       POSTGRES_PASSWORD_FILE: /run/secrets/datastore/postgres_password.txt
+#       POSTGRES_SUPERUSER: ${POSTGRES_SUPERUSER}
+#       POSTGRES_INITDB_ARGS: "--username=${POSTGRES_SUPERUSER} --pwfile=/run/secrets/postgres_superuser_password"
+#     secrets:
+#       - postgres_user
+#       - postgres_password
+#       - postgres_superuser_password
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#       - ${PWD}/secrets/datastore:/run/secrets/datastore
+#       - ${PWD}/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+#     healthcheck:
+#       test:
+#         [
+#           "CMD-SHELL",
+#           "pg_isready -U $(cat /run/secrets/datastore/postgres_user.txt) -d ${POSTGRES_DB} -h localhost -p 5432",
+#         ]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 5
+
+#   test_postgres:
+#     image: postgres:16.3
+#     restart: always
+#     env_file: .env.test
+#     environment:
+#       POSTGRES_DB: ${POSTGRES_DB}
+#       POSTGRES_USER_FILE: /run/secrets/test_postgres_user.txt
+#       POSTGRES_PASSWORD_FILE: /run/secrets/test_postgres_password.txt
+#       POSTGRES_SUPERUSER: ${POSTGRES_SUPERUSER}
+#       POSTGRES_INITDB_ARGS: "--username=${POSTGRES_SUPERUSER} --pwfile=/run/secrets/test_postgres_superuser_password.txt"
+#     secrets:
+#       - test_postgres_user
+#       - test_postgres_password
+#       - test_postgres_superuser_password
+#     ports:
+#       - "5433:5432"
+#     volumes:
+#       - test_postgres_data:/var/lib/postgresql/data
+#       - ${PWD}/secrets/datastore:/run/secrets/datastore
+#       - ${PWD}/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+#     healthcheck:
+#       test:
+#         "pg_isready -U $(cat /run/secrets/datastore/test_postgres_user) -d ${POSTGRES_DB} -h localhost -p 5432 > /tmp/pg_isready.log 2>&1 || (cat /tmp/pg_isready.log && exit 1)"
+#         # [
+#         #   "CMD-SHELL",
+#         #   "pg_isready -U $(cat /run/secrets/datastore/test_postgres_user.txt) -d ${POSTGRES_DB} -h localhost -p 5432",
+#         # ]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 5
+
+#   redis:
+#     image: redis:7.0
+#     ports:
+#       - "6379:6379"
+#     healthcheck:
+#       test: ["CMD", "redis-cli", "ping"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 5
+
+#   test-redis:
+#     image: redis:7.0
+#     ports:
+#       - "63790:6379"
+#     healthcheck:
+#       test: ["CMD", "redis-cli", "ping"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 5
+
+# volumes:
+#   postgres_data:
+#     driver: local
+#   test_postgres_data:
+#     driver: local
+
+# secrets:
+#   postgres_user:
+#     file: ./secrets/postgres_user.txt
+#   postgres_password:
+#     file: ./secrets/postgres_password.txt
+#   postgres_superuser_password:
+#     file: ./secrets/postgres_superuser_password.txt
+#   test_postgres_user:
+#     file: ./secrets/test_postgres_user.txt
+#   test_postgres_password:
+#     file: ./secrets/test_postgres_password.txt
+#   test_postgres_superuser_password:
+#     file: ./secrets/test_postgres_superuser_password.txt
+#   testdb_user_password:
+#     file: ./secrets/testdb_user_password.txt
