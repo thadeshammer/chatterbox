@@ -21,7 +21,9 @@ class Config:
 
     PORT = 443
     ENVIRONMENT = os.getenv("ENVIRONMENT", "pytest").lower()
-    LOGGING_CONFIG_FILE: str = os.getenv("LOG_CFG", "./datastore/logging_config_pytest.yaml")
+    LOGGING_CONFIG_FILE: str = os.getenv(
+        "LOG_CFG", "./datastore/logging_config_pytest.yaml"
+    )
 
     DEFAULT_TIMEZONE = "UTC"
     LOCAL_TIMEZONE = os.getenv("LOCAL_TIMEZONE", DEFAULT_TIMEZONE)
@@ -57,6 +59,8 @@ class Config:
 
         if cls.ENVIRONMENT in ["prod", "dev", "deploy"]:
             cls.POSTGRES_USER = os.getenv("DATABASE_USER")
+            if cls.POSTGRES_USER is None:
+                raise EnvironmentError("DATABASE_USER not in environment.")
             cls.POSTGRES_USER_PASSWORD_FILE = os.getenv("DATABASE_USER_PASSWORD_FILE")
             cls._db_name = os.getenv("DATABASE_NAME")
         elif cls.ENVIRONMENT in ["pytest", "test", "local"]:
@@ -99,6 +103,7 @@ class Config:
         else:
             service_and_port = f"{cls.DBSERVICE_NAME}:3306"
         uri = f"{prefix}{credentials}@{service_and_port}/{cls.DBNAME}"
+        logger.debug(f"DB {uri=}")
         return uri
 
     @classmethod

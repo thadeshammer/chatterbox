@@ -1,24 +1,23 @@
-# Use the official Python image from the Docker Hub
 FROM python:3.11-slim
 
-# Set environment variables
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements file into the container
-COPY datastore/requirements.txt .
-
-# Install the dependencies
+COPY services/datastore/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the current directory contents into the container at /app
-COPY datastore/ datastore/
+COPY services/datastore/ ./datastore
+COPY secrets/datastore /run/secrets/datastore
+COPY secrets/cert /run/secrets/cert
 
-# Expose the port the app runs on
-EXPOSE 443
+RUN export DATABASE_USER=$(cat /run/secrets/datastore/postgres_user.txt)
+RUN export TEST_DATABASE_USER=$(cat /run/secrets/datastore/test_postgres_user.txt)
+RUN echo "export DATABASE_USER=${DATABASE_USER}" >> /etc/profile.d/env.sh
+RUN echo "export DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> /etc/profile.d/env.sh
 
 # Command to run the FastAPI application
-CMD ["uvicorn", "datastore:app", "--host", "0.0.0.0", "--port", "443", "--ssl-keyfile", "/run/secrets/certs/key.pem", "--ssl-certfile", "/run/secrets/certs/cert.pem"]
+CMD ["uvicorn", "datastore.__init__:app", "--host", "0.0.0.0", "--port", "443", "--ssl-keyfile", "/run/secrets/cert/key.pem", "--ssl-certfile", "/run/secrets/cert/cert.pem"]
+
+# Keep it open for debug
+# CMD ["sleep", "1d"]

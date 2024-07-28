@@ -9,16 +9,13 @@ from datastore.config import Config
 from datastore.db import async_create_all_tables
 
 # Import tables for creation here.
-# from datastore.models import DummyTable
+from datastore.models import DummyModel
 from datastore.utils import setup_logging
 from fastapi import FastAPI
 
-CERT_FILE_PATH = "/secrets/cert.pem"
-KEY_FILE_PATH = "/secrets/key.pem"
-
-CERT_PASSKEY = str(os.getenv("CERT_PASSKEY"))
-if not CERT_PASSKEY:
-    raise EnvironmentError("CERT_PASSKEY environment variable not set")
+CERT_FILE_PATH = os.getenv("CERT_FILE_PATH")
+KEY_FILE_PATH = os.getenv("KEY_FILE_PATH")
+CERT_PASSKEY = os.getenv("CERT_PASSKEY")
 
 # Logger setup outside of create_app
 setup_logging(Config.LOGGING_CONFIG_FILE)
@@ -37,6 +34,8 @@ async def lifespan(
 ) -> AsyncGenerator[None, None]:
     # Startup events
     logger.info("DATASTORE START")
+    Config.initialize()
+    logger.debug(f"{Config.get_db_uri()=}")
     # await async_create_all_tables()
 
     yield  # this allows the server to run
@@ -49,7 +48,6 @@ async def lifespan(
 def create_app() -> FastAPI:
     fastapi_app = FastAPI(lifespan=lifespan)
 
-    Config.initialize()
     fastapi_app.debug = False
 
     # Log the worker PID
@@ -65,6 +63,19 @@ app = create_app()
 
 
 if __name__ == "__main__":
+    if CERT_FILE_PATH is None:
+        raise EnvironmentError("CERT_FILE_PATH environment variable is not set.")
+    if os.path.isfile(CERT_FILE_PATH) is False:
+        raise FileNotFoundError(f"Cert file not at {CERT_FILE_PATH=}")
+
+    if KEY_FILE_PATH is None:
+        raise EnvironmentError("KEY_FILE_PATH environment variable is not set.")
+    if os.path.isfile(KEY_FILE_PATH) is False:
+        raise FileNotFoundError(f"Key file not at {KEY_FILE_PATH=}")
+
+    if CERT_PASSKEY is None:
+        raise EnvironmentError("CERT_PASSKEY environment variable is not set.")
+
     try:
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         context.load_cert_chain(

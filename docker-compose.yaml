@@ -41,30 +41,29 @@ services:
 
   datastore:
     build:
-      context: ./services/
-      dockerfile: Dockerfile-datastore
+      context: .
+      dockerfile: services/Dockerfile-datastore
     command: >
-      uvicorn datastore:app
+      uvicorn datastore.__init__:app
       --host 0.0.0.0
       --port 443
       --ssl-keyfile /run/secrets/cert/key.pem
       --ssl-certfile /run/secrets/cert/cert.pem
     restart: "no"
     environment:
-      ENVIRONMENT: dev
+      ENVIRONMENT: prod
       LOCAL_TIMEZONE: America/New_York
-      LOG_CFG: ./datastore/logging_config.yaml
       CERT_PASSKEY: ${CERT_PASSKEY}
-      DATABASE_URL: postgresql+asyncpg://user@postgres/chatterboxdb
+      CERT_PATH: /run/secrets/certs/cert.pem
+      KEY_PATH: /run/secrets/certs/key.pem
       DATABASE_PREFIX: postgresql+asyncpg://
       DATABASE_NAME: chatterboxdb
-      DATABASE_USER: /run/secrets/datastore/postgres_user.txt
+      DATABASE_USER: $(cat /run/secrets/datastore/postgres_user.txt)
       DATABASE_USER_PASSWORD_FILE: /run/secrets/datastore/postgres_password.txt
       DB_SERVICE_NAME: postgres
       DB_PORT: 5432
       TEST_DB_NAME: chatterbox_testdb
-      TEST_DATABASE_USER: /run/secrets/datastore/test_postgres_user.txt
-      TEST_DATABASE_PASSWORD_FILE: /run/secrets/datastore/test_postgres_password.txt
+      TEST_DATABASE_USER: $(cat /run/secrets/datastore/test_postgres_user.txt)
       TEST_DB_SERVICE_NAME: test-postgres
       TEST_DB_PORT: 5433
       REDIS_HOST: redis
@@ -72,8 +71,8 @@ services:
       REDIS_DB_INDEX: 0
     volumes:
       - ./logs:/datastore/logs
-      - ./secrets/cert:/run/secrets/cert
-      - ./secrets/datastore:/run/secrets/datastore
+      # - ./secrets/cert:/run/secrets/cert
+      # - ./secrets/datastore:/run/secrets/datastore
     ports:
       - "443:443"
     depends_on:
