@@ -5,11 +5,11 @@ services:
     environment:
       POSTGRES_DB: chatterboxdb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_superuser_password.txt
-      POSTGRES_INITDB_ARGS: "--username=postgres --pwfile=/run/secrets/postgres_superuser_password.txt"
+      POSTGRES_PASSWORD_FILE: /run/secrets/datastore/postgres_superuser_password.txt
+      POSTGRES_INITDB_ARGS: "--username=postgres --pwfile=/run/secrets/datastore/postgres_superuser_password.txt"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./secrets/datastore/:/run/secrets/
+      - ./secrets/datastore/:/run/secrets/datastore
       - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     ports:
       - "5432:5432"
@@ -25,11 +25,11 @@ services:
     environment:
       POSTGRES_DB: chatterbox_testdb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD_FILE: /run/secrets/test_postgres_superuser_password.txt
-      POSTGRES_INITDB_ARGS: "--username=postgres --pwfile=/run/secrets/test_postgres_superuser_password.txt"
+      POSTGRES_PASSWORD_FILE: /run/secrets/datastore/test_postgres_superuser_password.txt
+      POSTGRES_INITDB_ARGS: "--username=postgres --pwfile=/run/secrets/datastore/test_postgres_superuser_password.txt"
     volumes:
       - test_postgres_data:/var/lib/postgresql/data
-      - ./secrets/datastore/:/run/secrets/
+      - ./secrets/datastore/:/run/secrets/datastore
       - ./init-test-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     ports:
       - "5433:5432"
@@ -52,13 +52,14 @@ services:
     restart: "no"
     environment:
       ENVIRONMENT: prod
+      LOG_CFG: /app/datastore/logging_config.yaml
       LOCAL_TIMEZONE: America/New_York
       CERT_PASSKEY: ${CERT_PASSKEY}
       CERT_PATH: /run/secrets/certs/cert.pem
       KEY_PATH: /run/secrets/certs/key.pem
       DATABASE_PREFIX: postgresql+asyncpg://
       DATABASE_NAME: chatterboxdb
-      DATABASE_USER: $(cat /run/secrets/datastore/postgres_user.txt)
+      DATABASE_USER_FILE: /run/secrets/datastore/postgres_user.txt
       DATABASE_USER_PASSWORD_FILE: /run/secrets/datastore/postgres_password.txt
       DB_SERVICE_NAME: postgres
       DB_PORT: 5432
@@ -70,9 +71,7 @@ services:
       REDIS_PORT: 6379
       REDIS_DB_INDEX: 0
     volumes:
-      - ./logs:/datastore/logs
-      # - ./secrets/cert:/run/secrets/cert
-      # - ./secrets/datastore:/run/secrets/datastore
+      - ./logs:/app/logs
     ports:
       - "443:443"
     depends_on:

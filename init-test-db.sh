@@ -1,13 +1,16 @@
 #!/bin/bash
 set -e
 
-POSTGRES_DB=chatterbox_testdb
-POSTGRES_USER=$(cat /run/secrets/test_postgres_user.txt)
-POSTGRES_PASSWORD=$(cat /run/secrets/test_postgres_password.txt)
+DB=chatterbox_testdb
+DBUSER=$(cat /run/secrets/datastore/test_postgres_user.txt)
+DBPASSWORD=$(cat /run/secrets/datastore/test_postgres_password.txt)
 
+# https://stackoverflow.com/a/75876944/19677371
 psql -v ON_ERROR_STOP=1 --username postgres <<-EOSQL
-    CREATE USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';
-    GRANT ALL PRIVILEGES ON DATABASE $POSTGRES_DB TO $POSTGRES_USER;
+    CREATE USER $DBUSER WITH PASSWORD '$DBPASSWORD';
+    GRANT ALL PRIVILEGES ON DATABASE $DB TO $DBUSER;
+    \c $DB postgres
+    GRANT ALL ON SCHEMA public TO $DBUSER;
 EOSQL
 
-echo "User and test database created successfully"
+echo "User and database created successfully"

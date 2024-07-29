@@ -31,14 +31,21 @@ def setup_logging(loggin_config_yaml_filepath: str) -> None:
             config: Union[list, dict, None] = yaml.safe_load(config_file.read())
             if not isinstance(config, dict):
                 raise TypeError(f"logging config is {type(config)} but needs be dict.")
-            logging.config.dictConfig(config)
+            try:
+                logging.config.dictConfig(config)
+            except Exception as e:
+                print(
+                    f"Found but failed to load config from {loggin_config_yaml_filepath}: {str(e)}"
+                )
+                raise
 
             log_files: list = _extract_filenames_from_logger_config(config)
 
             print(f"Log file(s) are at: {log_files}", flush=True)
-    else:
-        print("Log config not found, using defaults.", flush=True)
-        logging.basicConfig(level=logging.DEBUG)
+            return
+
+    print("Log config not found, using defaults.", flush=True)
+    logging.basicConfig(level=logging.DEBUG)
 
     # Create a custom formatter with the desired format
     custom_formatter = CustomFormatter(_LOG_FORMAT)

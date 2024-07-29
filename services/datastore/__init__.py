@@ -35,8 +35,7 @@ async def lifespan(
     # Startup events
     logger.info("DATASTORE START")
     Config.initialize()
-    logger.debug(f"{Config.get_db_uri()=}")
-    # await async_create_all_tables()
+    await async_create_all_tables()
 
     yield  # this allows the server to run
 

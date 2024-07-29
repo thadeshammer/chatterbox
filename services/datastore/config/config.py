@@ -32,7 +32,7 @@ class Config:
     _db_name: Optional[str] = None
 
     # defaults are typical test-db (MySQL) instance
-    POSTGRES_USER: Optional[str] = None
+    POSTGRES_USER_FILE: Optional[str] = None
     POSTGRES_USER_PASSWORD_FILE: Optional[str] = None
     TESTDB_PASSWORD_FILE_FALLBACK = "./secrets/test_postgres_password.txt"
     DATABASE_PREFIX = os.getenv("DATABASE_PREFIX", "postgresql+asyncpg://")
@@ -58,13 +58,13 @@ class Config:
             return
 
         if cls.ENVIRONMENT in ["prod", "dev", "deploy"]:
-            cls.POSTGRES_USER = os.getenv("DATABASE_USER")
-            if cls.POSTGRES_USER is None:
-                raise EnvironmentError("DATABASE_USER not in environment.")
+            cls.POSTGRES_USER_FILE = os.getenv("DATABASE_USER_FILE")
+            if cls.POSTGRES_USER_FILE is None:
+                raise EnvironmentError("DATABASE_USER_FILE not in environment.")
             cls.POSTGRES_USER_PASSWORD_FILE = os.getenv("DATABASE_USER_PASSWORD_FILE")
             cls._db_name = os.getenv("DATABASE_NAME")
         elif cls.ENVIRONMENT in ["pytest", "test", "local"]:
-            cls.POSTGRES_USER = os.getenv("TEST_DATABASE_USER")
+            cls.POSTGRES_USER_FILE = os.getenv("TEST_DATABASE_USER")
             cls.POSTGRES_USER_PASSWORD_FILE = os.getenv(
                 "TEST_DATABASE_PASSWORD_FILE", cls.TESTDB_PASSWORD_FILE_FALLBACK
             )
@@ -80,24 +80,32 @@ class Config:
             cls.initialize()
 
         pw_file = cls.POSTGRES_USER_PASSWORD_FILE
-        postgres_user_password: Optional[str] = None
+        user: Optional[str] = None
+        password: Optional[str] = None
 
         if pw_file is None:
             raise EnvironmentError(f"DB password file not set: {pw_file}")
         try:
             with open(pw_file, "r", encoding="utf8") as file:
-                postgres_user_password = file.read().strip()
+                password = file.read().strip()
         except FileNotFoundError as e:
             raise EnvironmentError(f"DB password file missing: {pw_file}") from e
-        if len(postgres_user_password) == 0:
+        if password is None or len(password) == 0:
             raise EnvironmentError(f"DB password file is empty: {pw_file}")
+
+        try:
+            with open(cls.POSTGRES_USER_FILE, "r", encoding="utf8") as file:
+                user = file.read().strip()
+        except FileNotFoundError as e:
+            raise EnvironmentError("DB username file missing.") from e
+        if user is None or len(user) == 0:
+            raise EnvironmentError("DB username file is empty.")
 
         # uri = f"mysql+aiomysql://user:{mysql_user_password}@db/lurkerbothunterdb"
         # uri = f"mysql+aiomysql://user:{password}@test-db:3307/lurkerbothunter-testdb"
         # uri = f"postgresql+asyncpg://user:password@postgres/chatterboxdb"
-        user = cls.POSTGRES_USER
         prefix = cls.DATABASE_PREFIX
-        credentials = f"{user}:{postgres_user_password}"
+        credentials = f"{user}:{password}"
         if cls.DBPORT is not None:
             service_and_port = f"{cls.DBSERVICE_NAME}:{cls.DBPORT}"
         else:

@@ -11,10 +11,7 @@ COPY services/datastore/ ./datastore
 COPY secrets/datastore /run/secrets/datastore
 COPY secrets/cert /run/secrets/cert
 
-RUN export DATABASE_USER=$(cat /run/secrets/datastore/postgres_user.txt)
-RUN export TEST_DATABASE_USER=$(cat /run/secrets/datastore/test_postgres_user.txt)
-RUN echo "export DATABASE_USER=${DATABASE_USER}" >> /etc/profile.d/env.sh
-RUN echo "export DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> /etc/profile.d/env.sh
+EXPOSE 443
 
 # Command to run the FastAPI application
 CMD ["uvicorn", "datastore.__init__:app", "--host", "0.0.0.0", "--port", "443", "--ssl-keyfile", "/run/secrets/cert/key.pem", "--ssl-certfile", "/run/secrets/cert/cert.pem"]
