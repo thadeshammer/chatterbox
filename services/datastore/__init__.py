@@ -53,6 +53,7 @@ def create_app() -> FastAPI:
     worker_pid = os.getpid()
     logger.info(f"Worker PID: {worker_pid}")
 
+    # TODO create and setup basic router
     # fastapi_app.include_router(router)
 
     return fastapi_app

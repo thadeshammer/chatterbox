@@ -1,6 +1,5 @@
 aiohttp==3.9.5
 asyncpg==0.29.0
-cryptography==39.0.1
 fastapi
 oauthlib==3.2.2
 pytest-asyncio==0.23.8

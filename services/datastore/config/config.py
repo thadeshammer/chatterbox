@@ -1,9 +1,7 @@
 import logging
 import os
 from datetime import datetime, timezone
-from typing import Any, Optional, Union
-
-import yaml
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 

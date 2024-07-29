@@ -13,8 +13,4 @@ COPY secrets/cert /run/secrets/cert
 
 EXPOSE 443
 
-# Command to run the FastAPI application
 CMD ["uvicorn", "datastore.__init__:app", "--host", "0.0.0.0", "--port", "443", "--ssl-keyfile", "/run/secrets/cert/key.pem", "--ssl-certfile", "/run/secrets/cert/cert.pem"]
-
-# Keep it open for debug
-# CMD ["sleep", "1d"]
