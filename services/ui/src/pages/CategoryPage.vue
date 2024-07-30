@@ -1,20 +1,21 @@
 <template>
-  <q-page class="flex flex-center">
-    {{ thing.categoryId }}
+  <q-page class="flex column">
+    <component :is="PostList"/>
   </q-page>
 </template>
 
 <script setup>
-import { watch, reactive } from 'vue'
+import { watch, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import PostList from '../components/PostList.vue'
+import { useBoardStore } from '../stores/board'
+const boardStore = useBoardStore()
 const route = useRoute()
-const thing = reactive({ categoryId: route.params.category})
+var category = boardStore.categoryById(route.params.category)
 watch(
     () => route.params.category,
     (newId, oldId) => {
-      // react to route changes...
-      console.log(newId);
-      thing.categoryId = newId
+      category = boardStore.categoryById(route.params.category)
     }
   )
 defineOptions({
