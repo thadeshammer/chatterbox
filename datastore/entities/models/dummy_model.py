@@ -3,12 +3,22 @@
 from sqlmodel import Field, SQLModel
 
 
-class DummyModel(SQLModel, table=True):
+class DummyModelBase(SQLModel, table=False):
+    name: str = Field(default=None)
+    value: int = Field(default=None)
+
+
+class DummyModel(DummyModelBase, table=True):
     # Simplistic model for sanity tests
     # Has to live here because Pytest and SQLModel are VERY fussy together.
-    __tablename__: str = "dummy_models"
+    __tablename__ = "dummy_models"
 
     id: int = Field(default_factory=int, primary_key=True)
 
-    name: str = Field(default=None)
-    value: int = Field(default=None)
+
+class DummyModelCreate(DummyModelBase):
+    pass
+
+
+class DummyModelRead(DummyModelBase):
+    id: int = Field(primary_key=True)

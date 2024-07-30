@@ -2,8 +2,9 @@
 from datetime import date, datetime
 from typing import Optional
 
-from datastore.entities.ids import EntityId, EntityPrefix
 from sqlmodel import Field, SQLModel
+
+from datastore.entities.ids import EntityId, EntityPrefix
 
 
 class UserProfileBase(SQLModel):
@@ -14,7 +15,9 @@ class UserProfileBase(SQLModel):
 
 
 class UserProfile(UserProfileBase, table=True):
-    __tablename__: str = "user_profiles"
+    """User profile info, to be expanded upon."""
+
+    __tablename__ = "user_profiles"
 
     id: str = Field(
         default_factory=lambda: str(EntityId(EntityPrefix.USERPROFILE)),
@@ -22,9 +25,9 @@ class UserProfile(UserProfileBase, table=True):
     )
 
 
-class UserProfileCreate(UserProfile):
+class UserProfileCreate(UserProfileBase):
     pass
 
 
-class UserProfileRead(UserProfile):
-    pass
+class UserProfileRead(UserProfileBase):
+    id: int = Field(primary_key=True)

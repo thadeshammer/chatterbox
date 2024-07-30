@@ -2,8 +2,9 @@
 from datetime import datetime
 from typing import Optional
 
-from datastore.entities.ids import EntityId, EntityPrefix
 from sqlmodel import Field, SQLModel
+
+from datastore.entities.ids import EntityId, EntityPrefix
 
 
 class UserBase(SQLModel):
@@ -14,7 +15,7 @@ class UserBase(SQLModel):
 
 
 class User(UserBase, table=True):
-    __tablename__: str = "users"
+    __tablename__ = "users"
 
     id: str = Field(
         default_factory=lambda: str(EntityId(EntityPrefix.USER)), primary_key=True
@@ -25,5 +26,5 @@ class UserCreate(UserBase):
     pass
 
 
-class UserRead(User):
-    pass
+class UserRead(UserBase):
+    id: int = Field(primary_key=True)

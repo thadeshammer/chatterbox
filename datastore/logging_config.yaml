@@ -29,14 +29,16 @@ handlers:
 
 loggers:
   "":
-    handlers:
-      - console
-      - file_handler
+    handlers: [console, file_handler]
     level: DEBUG
     propagate: True
 
   sqlalchemy.engine:
-    handlers:
-      - sqlalchemy_file_handler
+    handlers: [sqlalchemy_file_handler]
     level: DEBUG
+    propagate: False
+
+  uvicorn.access:
+    handlers: [console, file_handler]
+    level: INFO
     propagate: False

@@ -2,8 +2,9 @@
 from datetime import datetime
 from typing import Optional
 
-from datastore.entities.ids import EntityId, EntityPrefix
 from sqlmodel import Field, SQLModel
+
+from datastore.entities.ids import EntityId, EntityPrefix
 
 
 class PostBase(SQLModel, table=False):
@@ -12,33 +13,27 @@ class PostBase(SQLModel, table=False):
     content: str = Field(nullable=False, min_length=10, max_length=3000)
 
     locked: bool = Field(default=False)
-    locked_at: Optional[datetime] = Field(
-        default_factory=datetime.utcnow, nullable=False
-    )
+    locked_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     approved: bool = Field(default=True)
-    approved_at: Optional[datetime] = Field(
-        default_factory=datetime.utcnow, nullable=False
-    )
+    approved_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     deleted: bool = Field(default=False)
-    deleted_at: Optional[datetime] = Field(
-        default_factory=datetime.utcnow, nullable=False
-    )
+    deleted_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
 
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
     category_id: str = Field(..., nullable=False, foreign_key="categories.id")
 
 
 class Post(PostBase, table=True):
-    __tablename__: str = "posts"
+    __tablename__ = "posts"
 
     id: str = Field(
         default_factory=lambda: str(EntityId(EntityPrefix.POST)), primary_key=True
     )
 
 
-class PostCreate(Post):
+class PostCreate(PostBase):
     pass
 
 
-class PostRead(Post):
-    pass
+class PostRead(PostBase):
+    id: int = Field(primary_key=True)

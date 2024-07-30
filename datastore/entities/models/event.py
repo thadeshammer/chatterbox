@@ -1,4 +1,4 @@
-# datastore/entities/models/category.py
+# datastore/entities/models/post.py
 from datetime import datetime
 from typing import Optional
 
@@ -7,32 +7,33 @@ from sqlmodel import Field, SQLModel
 from datastore.entities.ids import EntityId, EntityPrefix
 
 
-class CategoryBase(SQLModel, table=False):
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+class EventBase(SQLModel, table=False):
+    created_at: datetime = Field(default_factory=datetime.utcnow)
     title: str = Field(nullable=False, min_length=10, max_length=150)
-    description: str = Field(nullable=False, min_length=10, max_length=500)
+    content: str = Field(nullable=False, min_length=10, max_length=3000)
 
     locked: bool = Field(default=False)
     locked_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    approved: bool = Field(default=True)
+    approved_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     deleted: bool = Field(default=False)
     deleted_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
 
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
+    board_id: str = Field(..., nullable=False, foreign_key="boards.id")
 
-    # board
 
-
-class Category(CategoryBase, table=True):
-    __tablename__ = "categories"
+class Event(EventBase, table=True):
+    __tablename__ = "events"
 
     id: str = Field(
-        default_factory=lambda: str(EntityId(EntityPrefix.CATEGORY)), primary_key=True
+        default_factory=lambda: str(EntityId(EntityPrefix.POST)), primary_key=True
     )
 
 
-class CategoryCreate(CategoryBase):
+class EventCreate(EventBase):
     pass
 
 
-class CategoryRead(CategoryBase):
+class EventRead(EventBase):
     id: str = Field(primary_key=True)

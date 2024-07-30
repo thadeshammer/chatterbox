@@ -4,18 +4,20 @@ import ssl
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from datastore.entities.models import (
+from fastapi import FastAPI
+
+from datastore.entities.models import (  # pylint: disable=unused-import
     Board,
     Category,
     Comment,
     CommentVote,
+    Event,
     EventVote,
     Post,
     PostVote,
     User,
     UserProfile,
 )
-from fastapi import FastAPI
 
 from .config import Config
 from .db import async_create_all_tables
@@ -54,12 +56,7 @@ async def lifespan(
 
 def create_app() -> FastAPI:
     fastapi_app = FastAPI(lifespan=lifespan)
-
     fastapi_app.debug = False
-
-    # Log the worker PID
-    worker_pid = os.getpid()
-    logger.info(f"Worker PID: {worker_pid}")
 
     # TODO create and setup basic router
     # fastapi_app.include_router(router)

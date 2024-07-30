@@ -2,8 +2,9 @@
 from datetime import datetime
 from typing import Optional
 
-from datastore.entities.ids import EntityId, EntityPrefix
 from sqlmodel import Field, SQLModel
+
+from datastore.entities.ids import EntityId, EntityPrefix
 
 
 class BoardBase(SQLModel, table=False):
@@ -12,30 +13,24 @@ class BoardBase(SQLModel, table=False):
     description: str = Field(nullable=False, min_length=10, max_length=500)
 
     locked: bool = Field(default=False)
-    locked_at: Optional[datetime] = Field(
-        default_factory=datetime.utcnow, nullable=False
-    )
+    locked_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     deleted: bool = Field(default=False)
-    deleted_at: Optional[datetime] = Field(
-        default_factory=datetime.utcnow, nullable=False
-    )
+    deleted_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
 
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
 
-    # board
-
 
 class Board(BoardBase, table=True):
-    __tablename__: str = "boards"
+    __tablename__ = "boards"
 
     id: str = Field(
         default_factory=lambda: str(EntityId(EntityPrefix.BOARD)), primary_key=True
     )
 
 
-class BoardCreate(Board):
+class BoardCreate(BoardBase):
     pass
 
 
-class BoardRead(Board):
-    pass
+class BoardRead(BoardBase):
+    id: str = Field(primary_key=True)
