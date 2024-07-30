@@ -13,11 +13,11 @@ class EventBase(SQLModel, table=False):
     content: str = Field(nullable=False, min_length=10, max_length=3000)
 
     locked: bool = Field(default=False)
-    locked_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    locked_at: Optional[datetime] = Field(default=None)
     approved: bool = Field(default=True)
-    approved_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    approved_at: Optional[datetime] = Field(default=None)
     deleted: bool = Field(default=False)
-    deleted_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    deleted_at: Optional[datetime] = Field(default=None)
 
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
     board_id: str = Field(..., nullable=False, foreign_key="boards.id")

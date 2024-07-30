@@ -13,9 +13,9 @@ class CommentBase(SQLModel, table=False):
     content: str = Field(..., min_length=10, max_length=3000, nullable=False)
 
     approved: bool = Field(default=True)
-    approved_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    approved_at: Optional[datetime] = Field(default=None)
     deleted: bool = Field(default=False)
-    deleted_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    deleted_at: Optional[datetime] = Field(default=None)
 
     user_id: str = Field(..., nullable=False, foreign_key="users.id", index=True)
     post_id: str = Field(..., nullable=False, foreign_key="posts.id", index=True)

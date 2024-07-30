@@ -11,7 +11,7 @@ class UserBase(SQLModel):
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     name: str = Field(..., nullable=False, unique=True)
 
-    user_profile_id: Optional[str] = Field(..., nullable=True)
+    user_profile_id: Optional[str] = Field(default=None, nullable=True)
 
 
 class User(UserBase, table=True):

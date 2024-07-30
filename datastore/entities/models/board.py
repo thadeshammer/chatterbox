@@ -13,9 +13,9 @@ class BoardBase(SQLModel, table=False):
     description: str = Field(nullable=False, min_length=10, max_length=500)
 
     locked: bool = Field(default=False)
-    locked_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    locked_at: Optional[datetime] = Field(default=None)
     deleted: bool = Field(default=False)
-    deleted_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    deleted_at: Optional[datetime] = Field(default=None)
 
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
 

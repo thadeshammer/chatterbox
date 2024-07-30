@@ -10,7 +10,7 @@ from datastore.entities.ids import EntityId, EntityPrefix
 class UserProfileBase(SQLModel):
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
-    birthday: Optional[date] = Field(nullable=True)
+    birthday: Optional[date] = Field(default=None, nullable=True)
     # TODO more stuff
 
 

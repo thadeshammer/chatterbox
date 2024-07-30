@@ -15,7 +15,7 @@ services:
       - "5432:5432"
     healthcheck:
       test: "pg_isready -U postgres -d chatterboxdb -h localhost -p 5432 > /tmp/pg_isready.log 2>&1 || (cat /tmp/pg_isready.log && exit 1)"
-      interval: 30s
+      interval: 10s
       timeout: 10s
       retries: 5
 

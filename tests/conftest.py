@@ -1,5 +1,6 @@
 # pylint: disable=redefined-outer-name
 import asyncio
+import logging
 
 import pytest_asyncio
 import redis.asyncio as redis_async
@@ -24,6 +25,9 @@ from datastore.entities.models import (  # pylint: disable=unused-import
 )
 
 _TEST_DB_URI = Config.get_db_uri()
+
+logger = logging.getLogger("__name__")
+logger.debug(f"{_TEST_DB_URI=}")
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -111,10 +115,8 @@ async def truncate_tables(
         async_engine (pytest fixture): Instantiates async test db engine.
     """
     async with async_engine.begin() as conn:
-        await conn.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
         for table in reversed(SQLModel.metadata.sorted_tables):
-            await conn.execute(text(f"TRUNCATE TABLE {table.name};"))
-        await conn.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
+            await conn.execute(text(f"TRUNCATE TABLE {table.name} CASCADE;"))
         await conn.commit()
     yield
 
