@@ -1,4 +1,4 @@
-# datastore/models/_validator_regexes.py
+# datastore/entities/_validator_regexes.py
 # A centralized spot for regexes used in data validation in API requests and responses.
 import re
 from typing import Any

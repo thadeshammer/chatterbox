@@ -32,7 +32,8 @@ class Config:
     # defaults are typical test-db (MySQL) instance
     POSTGRES_USER_FILE: Optional[str] = None
     POSTGRES_USER_PASSWORD_FILE: Optional[str] = None
-    TESTDB_PASSWORD_FILE_FALLBACK = "./secrets/test_postgres_password.txt"
+    TESTDB_USER_FILE_FALLBACK = "./secrets/datastore/test_postgres_user.txt"
+    TESTDB_PASSWORD_FILE_FALLBACK = "./secrets/datastore/test_postgres_password.txt"
     DATABASE_PREFIX = os.getenv("DATABASE_PREFIX", "postgresql+asyncpg://")
     DBNAME = os.getenv("DATABASE_NAME", "lurkerbothunter-testdb")
     DBSERVICE_NAME = os.getenv(
@@ -62,7 +63,9 @@ class Config:
             cls.POSTGRES_USER_PASSWORD_FILE = os.getenv("DATABASE_USER_PASSWORD_FILE")
             cls._db_name = os.getenv("DATABASE_NAME")
         elif cls.ENVIRONMENT in ["pytest", "test", "local"]:
-            cls.POSTGRES_USER_FILE = os.getenv("TEST_DATABASE_USER")
+            cls.POSTGRES_USER_FILE = os.getenv(
+                "TEST_DATABASE_USER", cls.TESTDB_USER_FILE_FALLBACK
+            )
             cls.POSTGRES_USER_PASSWORD_FILE = os.getenv(
                 "TEST_DATABASE_PASSWORD_FILE", cls.TESTDB_PASSWORD_FILE_FALLBACK
             )

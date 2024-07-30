@@ -1,17 +1,25 @@
-# datastore/__init__.py
 import logging
 import os
 import ssl
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from datastore.config import Config
-from datastore.db import async_create_all_tables
-
-# Import tables for creation here.
-from datastore.models import DummyModel
-from datastore.utils import setup_logging
+from datastore.entities.models import (
+    Board,
+    Category,
+    Comment,
+    CommentVote,
+    EventVote,
+    Post,
+    PostVote,
+    User,
+    UserProfile,
+)
 from fastapi import FastAPI
+
+from .config import Config
+from .db import async_create_all_tables
+from .utils import setup_logging
 
 CERT_FILE_PATH = os.getenv("CERT_FILE_PATH")
 KEY_FILE_PATH = os.getenv("KEY_FILE_PATH")
@@ -57,9 +65,6 @@ def create_app() -> FastAPI:
     # fastapi_app.include_router(router)
 
     return fastapi_app
-
-
-app = create_app()
 
 
 if __name__ == "__main__":

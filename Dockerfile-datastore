@@ -4,10 +4,10 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY services/datastore/requirements.txt .
+COPY datastore/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY services/datastore/ ./datastore
+COPY datastore/ ./datastore
 COPY secrets/datastore /run/secrets/datastore
 COPY secrets/cert /run/secrets/cert
 
