@@ -1,27 +1,20 @@
+# pylint: disable=unused-argument
 # pylint: disable=redefined-outer-name
 import asyncio
 import logging
+from typing import AsyncGenerator
 
 import pytest_asyncio
 import redis.asyncio as redis_async
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import text
 from sqlmodel import SQLModel
 
 from datastore.config import Config
-from datastore.entities.models import (  # pylint: disable=unused-import
-    Board,
-    Category,
-    Comment,
-    CommentVote,
-    DummyModel,
-    EventVote,
-    Post,
-    PostVote,
+from datastore.entities.models import (  # pylint: disable=unused-import; Board,; Category,; Comment,; CommentVote,; DummyModel,; EventVote,; Post,; PostVote,; UserProfile,
     User,
-    UserProfile,
 )
 
 _TEST_DB_URI = Config.get_db_uri()
@@ -31,7 +24,7 @@ logger.debug(f"{_TEST_DB_URI=}")
 
 
 @pytest_asyncio.fixture(scope="session")
-def event_loop():
+def event_loop() -> AsyncGenerator[asyncio.AbstractEventLoop, None]:
     """Create and return a new event loop for the session.
 
     NOTE. This works but it's the old way of doing it and deprecated. I haven't yet figured out how
@@ -42,7 +35,6 @@ def event_loop():
     """
     try:
         loop = asyncio.get_running_loop()
-        # loop = asyncio.get_event_loop_policy().get_event_loop()
     except RuntimeError:
         loop = asyncio.get_event_loop_policy().new_event_loop()
 
@@ -56,7 +48,9 @@ def event_loop():
 
 
 @pytest_asyncio.fixture(scope="session")
-async def redis_client(event_loop):  # pylint: disable=unused-argument
+async def redis_client(
+    event_loop: asyncio.AbstractEventLoop,
+) -> AsyncGenerator[redis_async.Redis, None]:
     """Redis client fixture (requires test-redis to be up).
 
     NOTE. Needed to downgrade from 5.0.7 to 5.0.1 for testing to stop failing/erroring with a
@@ -76,21 +70,25 @@ async def redis_client(event_loop):  # pylint: disable=unused-argument
 
 
 @pytest_asyncio.fixture(scope="session")
-async def async_engine():
+async def async_engine() -> AsyncGenerator[AsyncEngine, None]:
     engine = create_async_engine(
-        _TEST_DB_URI, echo=False, future=True, hide_parameters=True, poolclass=NullPool
+        _TEST_DB_URI, echo=False, future=True, hide_parameters=False, poolclass=NullPool
     )
     yield engine
     await engine.dispose()
 
 
 @pytest_asyncio.fixture(scope="session")
-async def async_session_maker(async_engine):  # pylint:disable=redefined-outer-name
-    return sessionmaker(async_engine, expire_on_commit=True, class_=AsyncSession)
+async def async_session_maker(
+    async_engine: AsyncEngine,
+) -> sessionmaker:
+    return sessionmaker(async_engine, expire_on_commit=True, class_=AsyncSession)  # type: ignore
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
-async def create_test_tables(async_engine):  # pylint:disable=redefined-outer-name
+async def create_test_tables(
+    async_engine: AsyncEngine,
+) -> AsyncGenerator[None, None]:
     """_summary_
 
     Args:
@@ -105,8 +103,8 @@ async def create_test_tables(async_engine):  # pylint:disable=redefined-outer-na
 
 @pytest_asyncio.fixture(scope="function")
 async def truncate_tables(
-    async_engine,
-):  # pylint:disable=redefined-outer-name  # type: ignore
+    async_engine: AsyncEngine,
+) -> AsyncGenerator[None, None]:
     """Clears table data quickly between tests.
 
     Uses truncate instead of dropping the tables each test.
@@ -123,8 +121,8 @@ async def truncate_tables(
 
 @pytest_asyncio.fixture(scope="function")
 async def async_session(
-    async_session_maker, truncate_tables  # type: ignore  # pylint:disable=unused-argument
-):  # pylint:disable=redefined-outer-name
+    async_session_maker: sessionmaker, truncate_tables: AsyncGenerator[None, None]
+):
     """Yields an async session per function, closing for each post-function teardown."""
     async with async_session_maker() as session:
         yield session

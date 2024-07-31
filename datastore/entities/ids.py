@@ -19,13 +19,5 @@ class EntityPrefix(StrEnum):
     USERPROFILE = "userprofile"
 
 
-class EntityId(str):
-    def __init__(self, prefix: EntityPrefix):
-        self.prefix = prefix
-        self.uuid = uuid4()
-
-    def __str__(self):
-        return f"{self.prefix}_{self.uuid}"
-
-    def __repr__(self):
-        return f"EntityID(prefix={self.prefix}, uuid={self.uuid})"
+def make_entity_id(prefix: EntityPrefix) -> str:
+    return f"{prefix}-{str(uuid4())}"

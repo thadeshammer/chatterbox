@@ -1,10 +1,14 @@
 # datastore/entities/models/post.py
 from datetime import datetime
-from typing import Optional
+from typing import TYPE_CHECKING, Optional, cast
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel._compat import SQLModelConfig
 
-from datastore.entities.ids import EntityId, EntityPrefix
+from datastore.entities.ids import EntityPrefix, make_entity_id
+
+if TYPE_CHECKING:
+    from . import Category, Comment, PostVote, User
 
 
 class PostBase(SQLModel, table=False):
@@ -22,12 +26,33 @@ class PostBase(SQLModel, table=False):
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
     category_id: str = Field(..., nullable=False, foreign_key="categories.id")
 
+    model_config = cast(
+        SQLModelConfig,
+        {
+            "arbitrary_types_allowed": "True",
+            "populate_by_name": "True",
+        },
+    )
+
 
 class Post(PostBase, table=True):
     __tablename__ = "posts"
 
     id: str = Field(
-        default_factory=lambda: str(EntityId(EntityPrefix.POST)), primary_key=True
+        default_factory=lambda: make_entity_id(EntityPrefix.POST), primary_key=True
+    )
+
+    user: "User" = Relationship(
+        back_populates="posts", sa_relationship_kwargs={"lazy": "subquery"}
+    )
+    category: "Category" = Relationship(
+        back_populates="posts", sa_relationship_kwargs={"lazy": "subquery"}
+    )
+    comments: "Comment" = Relationship(
+        back_populates="post", sa_relationship_kwargs={"lazy": "subquery"}
+    )
+    votes: list["PostVote"] = Relationship(
+        back_populates="post", sa_relationship_kwargs={"lazy": "subquery"}
     )
 
 

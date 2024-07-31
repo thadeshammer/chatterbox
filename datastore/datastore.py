@@ -32,6 +32,9 @@ setup_logging(Config.LOGGING_CONFIG_FILE)
 
 # "Using selector: EpollSelector" spam
 logging.getLogger("asyncio").setLevel(logging.WARNING)
+# Set to DEBUG to figure out the at-times misleading greenlet spawn error.
+# See /tests/datastore/model_sanity/test_greenlet_red_herring to do this.
+logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)  # Set to debug level to capture detailed logs

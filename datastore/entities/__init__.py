@@ -1,8 +1,8 @@
 # datastore/entities/__init__.py
 
-from .ids import EntityId, EntityPrefix
+from .ids import EntityPrefix, make_entity_id
 
 __all__ = [
-    "EntityId",
+    "make_entity_id",
     "EntityPrefix",
 ]
