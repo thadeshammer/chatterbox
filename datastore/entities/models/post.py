@@ -36,4 +36,4 @@ class PostCreate(PostBase):
 
 
 class PostRead(PostBase):
-    id: int = Field(primary_key=True)
+    id: str = Field(primary_key=True)

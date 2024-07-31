@@ -27,4 +27,4 @@ class UserCreate(UserBase):
 
 
 class UserRead(UserBase):
-    id: int = Field(primary_key=True)
+    id: str = Field(primary_key=True)

@@ -38,7 +38,7 @@ class CommentVoteCreate(VoteBase):
 
 
 class CommentVoteRead(VoteBase):
-    id: int = Field(primary_key=True)
+    id: str = Field(primary_key=True)
 
 
 class PostVote(VoteBase, table=True):
@@ -56,7 +56,7 @@ class PostVoteCreate(VoteBase):
 
 
 class PostVoteRead(VoteBase):
-    id: int = Field(primary_key=True)
+    id: str = Field(primary_key=True)
 
 
 class EventVote(VoteBase, table=True):
@@ -74,4 +74,4 @@ class EventVoteCreate(VoteBase):
 
 
 class EventVoteRead(VoteBase):
-    id: int = Field(primary_key=True)
+    id: str = Field(primary_key=True)

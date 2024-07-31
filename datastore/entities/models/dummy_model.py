@@ -13,7 +13,7 @@ class DummyModel(DummyModelBase, table=True):
     # Has to live here because Pytest and SQLModel are VERY fussy together.
     __tablename__ = "dummy_models"
 
-    id: int = Field(default_factory=int, primary_key=True)
+    id: str = Field(default_factory=int, primary_key=True)
 
 
 class DummyModelCreate(DummyModelBase):
@@ -21,4 +21,4 @@ class DummyModelCreate(DummyModelBase):
 
 
 class DummyModelRead(DummyModelBase):
-    id: int = Field(primary_key=True)
+    id: str = Field(primary_key=True)

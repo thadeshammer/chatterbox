@@ -30,4 +30,4 @@ class UserProfileCreate(UserProfileBase):
 
 
 class UserProfileRead(UserProfileBase):
-    id: int = Field(primary_key=True)
+    id: str = Field(primary_key=True)

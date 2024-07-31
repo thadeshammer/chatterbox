@@ -19,7 +19,7 @@ class EntityPrefix(StrEnum):
     USERPROFILE = "userprofile"
 
 
-class EntityId:
+class EntityId(str):
     def __init__(self, prefix: EntityPrefix):
         self.prefix = prefix
         self.uuid = uuid4()
