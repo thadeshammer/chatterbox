@@ -12,15 +12,9 @@ if TYPE_CHECKING:
 
 
 class UserProfileBase(SQLModel):
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
-
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
 
-    # user: "User" = Relationship(
-    #     back_populates="user_profile", sa_relationship_kwargs={"lazy": "subquery"}
-    # )
-
-    # birthday: Optional[date] = Field(default=None, nullable=True)
+    birthday: Optional[date] = Field(default=None, nullable=True)
     # TODO more profile stuff
 
     model_config = cast(
@@ -41,6 +35,11 @@ class UserProfile(UserProfileBase, table=True):
         default_factory=lambda: make_entity_id(EntityPrefix.USERPROFILE),
         primary_key=True,
     )
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+
+    user: "User" = Relationship(
+        back_populates="user_profile", sa_relationship_kwargs={"lazy": "subquery"}
+    )
 
 
 class UserProfileCreate(UserProfileBase):
@@ -49,3 +48,4 @@ class UserProfileCreate(UserProfileBase):
 
 class UserProfileRead(UserProfileBase):
     id: str = Field(primary_key=True)
+    created_at: datetime = Field()

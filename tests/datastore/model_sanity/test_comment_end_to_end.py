@@ -1,5 +1,4 @@
 import pytest
-from sqlalchemy.orm import joinedload
 from sqlmodel import select
 
 from datastore.entities.models import (
@@ -9,7 +8,6 @@ from datastore.entities.models import (
     CategoryCreate,
     Comment,
     CommentCreate,
-    CommentRead,
     Post,
     PostCreate,
     User,
