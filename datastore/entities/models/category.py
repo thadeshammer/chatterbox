@@ -11,17 +11,27 @@ if TYPE_CHECKING:
     from . import Board, Post, User
 
 
-class CategoryBase(SQLModel, table=False):
+class CategoryCreate(SQLModel):
     title: str = Field(nullable=False, min_length=10, max_length=150)
     description: str = Field(nullable=False, min_length=10, max_length=500)
 
+    user_id: str = Field(..., nullable=False, foreign_key="users.id")
+    board_id: str = Field(..., nullable=False, foreign_key="boards.id")
+
+    model_config = cast(
+        SQLModelConfig,
+        {
+            # "arbitrary_types_allowed": "True",
+            "populate_by_name": "True",
+        },
+    )
+
+
+class CategoryBase(CategoryCreate):
     locked: bool = Field(default=False)
     locked_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     deleted: bool = Field(default=False)
     deleted_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
-
-    user_id: str = Field(..., nullable=False, foreign_key="users.id")
-    board_id: str = Field(..., nullable=False, foreign_key="boards.id")
 
 
 class Category(CategoryBase, table=True):
@@ -41,18 +51,6 @@ class Category(CategoryBase, table=True):
     posts: list["Post"] = Relationship(
         back_populates="category", sa_relationship_kwargs={"lazy": "subquery"}
     )
-
-    model_config = cast(
-        SQLModelConfig,
-        {
-            "arbitrary_types_allowed": "True",
-            "populate_by_name": "True",
-        },
-    )
-
-
-class CategoryCreate(CategoryBase):
-    pass
 
 
 class CategoryRead(CategoryBase):

@@ -1,8 +1,8 @@
 # datastore/entities/models/user.py
 from datetime import datetime
-from typing import TYPE_CHECKING, Annotated, Optional, cast
+from typing import TYPE_CHECKING, Annotated, Any, Optional, cast
 
-from pydantic import StringConstraints
+from pydantic import EmailStr, StringConstraints, model_validator
 from sqlmodel import Field, Relationship, SQLModel
 from sqlmodel._compat import SQLModelConfig
 
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     )
 
 
-class UserBase(SQLModel):
+class UserCreate(SQLModel):
     name: Annotated[
         str,
         StringConstraints(min_length=5, max_length=30, pattern=LOGIN_NAME_REGEX),
@@ -34,13 +34,23 @@ class UserBase(SQLModel):
             unique=True,
         ),
     ]
+    email: EmailStr = Field(..., nullable=False, unique=True)
 
+    @model_validator(mode="before")
+    @classmethod
+    def validate_fields(cls, data: dict[str, Any]) -> dict[str, Any]:
+        data["name"] = data["name"].lower()
+        data["email"] = data["email"].lower()
+        return data
+
+
+class UserBase(UserCreate):
     user_profile_id: Optional[str] = Field(default=None, nullable=True)
 
     model_config = cast(
         SQLModelConfig,
         {
-            "arbitrary_types_allowed": "True",
+            # "arbitrary_types_allowed": "True",
             "populate_by_name": "True",
         },
     )
@@ -81,10 +91,6 @@ class User(UserBase, table=True):
     user_profile: "UserProfile" = Relationship(
         back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
     )
-
-
-class UserCreate(UserBase):
-    pass
 
 
 class UserRead(UserBase):

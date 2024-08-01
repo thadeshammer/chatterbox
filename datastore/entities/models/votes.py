@@ -1,8 +1,9 @@
 # datastore/entities/models/votes.py
 from datetime import datetime
 from enum import StrEnum
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
+from pydantic import model_validator
 from sqlmodel import Field, Relationship, SQLModel
 
 from datastore.entities.ids import EntityPrefix, make_entity_id
@@ -17,18 +18,38 @@ class VoteType(StrEnum):
     DOWN = "down"  # explicit down vote
 
 
-class VoteBase(SQLModel, table=False):
-    vote: str = Field(..., nullable=False)  # TODO enforce adherence to VoteType
+class _VoteCreate(SQLModel):
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
+    vote: str = Field(..., nullable=False)  # TODO enforce adherence to VoteType
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_fields(cls, data: dict[str, Any]) -> dict[str, Any]:
+        possible_votes = VoteType.__members__.values()
+        if not data["vote"] in possible_votes:
+            raise ValueError(f"Invalid value for vote. Use: {possible_votes}")
+        return data
 
 
-class VoteBaseDelegate(VoteBase):
+class CommentVoteCreate(_VoteCreate):
+    comment_id: str = Field(..., nullable=False, foreign_key="comments.id")
+
+
+class EventVoteCreate(_VoteCreate):
+    event_id: str = Field(..., nullable=False, foreign_key="events.id")
+
+
+class PostVoteCreate(_VoteCreate):
+    post_id: str = Field(..., nullable=False, foreign_key="posts.id")
+
+
+class _VoteBase(SQLModel):
     voted_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     deleted: bool = Field(default=False)
     deleted_at: Optional[datetime] = Field(default=None)
 
 
-class CommentVote(VoteBaseDelegate, table=True):
+class CommentVote(_VoteBase, CommentVoteCreate, table=True):
     __tablename__ = "comment_votes"
 
     id: str = Field(
@@ -36,7 +57,6 @@ class CommentVote(VoteBaseDelegate, table=True):
         primary_key=True,
     )
 
-    comment_id: str = Field(..., nullable=False, foreign_key="comments.id")
     user: "User" = Relationship(
         back_populates="comment_votes", sa_relationship_kwargs={"lazy": "subquery"}
     )
@@ -45,25 +65,17 @@ class CommentVote(VoteBaseDelegate, table=True):
     )
 
 
-class CommentVoteCreate(VoteBaseDelegate):
-    pass
-
-
-class CommentVoteRead(VoteBaseDelegate):
+class CommentVoteRead(_VoteBase, CommentVoteCreate):
     id: str = Field(primary_key=True)
-    voted_at: datetime
-    deleted: bool
-    deleted_at: Optional[datetime]
 
 
-class PostVote(VoteBaseDelegate, table=True):
+class PostVote(_VoteBase, PostVoteCreate, table=True):
     __tablename__ = "post_votes"
 
     id: str = Field(
         default_factory=lambda: make_entity_id(EntityPrefix.POSTVOTE), primary_key=True
     )
 
-    post_id: str = Field(..., nullable=False, foreign_key="posts.id")
     user: "User" = Relationship(
         back_populates="post_votes", sa_relationship_kwargs={"lazy": "subquery"}
     )
@@ -72,25 +84,17 @@ class PostVote(VoteBaseDelegate, table=True):
     )
 
 
-class PostVoteCreate(VoteBaseDelegate):
-    pass
-
-
-class PostVoteRead(VoteBaseDelegate):
+class PostVoteRead(_VoteBase, PostVoteCreate):
     id: str = Field(primary_key=True)
-    voted_at: datetime
-    deleted: bool
-    deleted_at: Optional[datetime]
 
 
-class EventVote(VoteBaseDelegate, table=True):
+class EventVote(_VoteBase, EventVoteCreate, table=True):
     __tablename__ = "event_votes"
 
     id: str = Field(
         default_factory=lambda: make_entity_id(EntityPrefix.EVENTVOTE), primary_key=True
     )
 
-    event_id: str = Field(..., nullable=False, foreign_key="events.id")
     user: "User" = Relationship(
         back_populates="event_votes", sa_relationship_kwargs={"lazy": "subquery"}
     )
@@ -99,12 +103,5 @@ class EventVote(VoteBaseDelegate, table=True):
     )
 
 
-class EventVoteCreate(VoteBaseDelegate):
-    pass
-
-
-class EventVoteRead(VoteBaseDelegate):
+class EventVoteRead(_VoteBase, EventVoteCreate):
     id: str = Field(primary_key=True)
-    voted_at: datetime
-    deleted: bool
-    deleted_at: Optional[datetime]

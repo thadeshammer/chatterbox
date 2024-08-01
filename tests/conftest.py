@@ -17,11 +17,13 @@ from datastore.entities.models import (  # pylint: disable=unused-import
     Board,
     Category,
     Comment,
+    CommentVote,
     Event,
+    EventVote,
     Post,
+    PostVote,
     User,
     UserProfile,
-    Votes,
 )
 
 _TEST_DB_URI = Config.get_db_uri()

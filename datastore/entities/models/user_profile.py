@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from . import User
 
 
-class UserProfileBase(SQLModel):
+class UserProfileCreate(SQLModel):
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
 
     birthday: Optional[date] = Field(default=None, nullable=True)
@@ -20,10 +20,14 @@ class UserProfileBase(SQLModel):
     model_config = cast(
         SQLModelConfig,
         {
-            "arbitrary_types_allowed": "True",
+            # "arbitrary_types_allowed": "True",
             "populate_by_name": "True",
         },
     )
+
+
+class UserProfileBase(UserProfileCreate):
+    pass
 
 
 class UserProfile(UserProfileBase, table=True):
@@ -40,10 +44,6 @@ class UserProfile(UserProfileBase, table=True):
     user: "User" = Relationship(
         back_populates="user_profile", sa_relationship_kwargs={"lazy": "subquery"}
     )
-
-
-class UserProfileCreate(UserProfileBase):
-    pass
 
 
 class UserProfileRead(UserProfileBase):

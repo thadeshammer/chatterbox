@@ -11,27 +11,28 @@ if TYPE_CHECKING:
     from . import Board, EventVote, User
 
 
-class EventBase(SQLModel, table=False):
+class EventCreate(SQLModel):
     title: str = Field(nullable=False, min_length=10, max_length=150)
     content: str = Field(nullable=False, min_length=10, max_length=3000)
-
-    locked: bool = Field(default=False)
-    locked_at: Optional[datetime] = Field(default=None)
-    approved: bool = Field(default=True)
-    approved_at: Optional[datetime] = Field(default=None)
-    deleted: bool = Field(default=False)
-    deleted_at: Optional[datetime] = Field(default=None)
-
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
     board_id: str = Field(..., nullable=False, foreign_key="boards.id")
 
     model_config = cast(
         SQLModelConfig,
         {
-            "arbitrary_types_allowed": "True",
+            # "arbitrary_types_allowed": "True",
             "populate_by_name": "True",
         },
     )
+
+
+class EventBase(EventCreate):
+    locked: bool = Field(default=False)
+    locked_at: Optional[datetime] = Field(default=None)
+    approved: bool = Field(default=True)
+    approved_at: Optional[datetime] = Field(default=None)
+    deleted: bool = Field(default=False)
+    deleted_at: Optional[datetime] = Field(default=None)
 
 
 class Event(EventBase, table=True):
@@ -51,10 +52,6 @@ class Event(EventBase, table=True):
     votes: list["EventVote"] = Relationship(
         back_populates="event", sa_relationship_kwargs={"lazy": "subquery"}
     )
-
-
-class EventCreate(EventBase):
-    pass
 
 
 class EventRead(EventBase):

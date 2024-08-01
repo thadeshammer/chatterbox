@@ -11,24 +11,25 @@ if TYPE_CHECKING:
     from . import Post, User
 
 
-class CommentBase(SQLModel, table=False):
+class CommentCreate(SQLModel):
     content: str = Field(..., min_length=10, max_length=3000, nullable=False)
-
-    approved: bool = Field(default=True)
-    approved_at: Optional[datetime] = Field(default=None)
-    deleted: bool = Field(default=False)
-    deleted_at: Optional[datetime] = Field(default=None)
-
     user_id: str = Field(..., nullable=False, foreign_key="users.id", index=True)
     post_id: str = Field(..., nullable=False, foreign_key="posts.id", index=True)
 
     model_config = cast(
         SQLModelConfig,
         {
-            "arbitrary_types_allowed": "True",
+            # "arbitrary_types_allowed": "True",
             "populate_by_name": "True",
         },
     )
+
+
+class CommentBase(CommentCreate):
+    approved: bool = Field(default=True)
+    approved_at: Optional[datetime] = Field(default=None)
+    deleted: bool = Field(default=False)
+    deleted_at: Optional[datetime] = Field(default=None)
 
 
 class Comment(CommentBase, table=True):
@@ -48,10 +49,6 @@ class Comment(CommentBase, table=True):
     votes: list["CommentVote"] = Relationship(
         back_populates="comment", sa_relationship_kwargs={"lazy": "subquery"}
     )
-
-
-class CommentCreate(CommentBase):
-    pass
 
 
 class CommentRead(CommentBase):

@@ -15,7 +15,7 @@ from datastore.entities.models import (
     UserRead,
 )
 
-MOCK_CREATE_USER_REQUEST = {"name": "beeeeegHootie"}
+MOCK_CREATE_USER_REQUEST = {"name": "beeeeeghootie", "email": "beeghootie@email.net"}
 
 # NOTE These requests will come with a user id in their payload typically.
 
