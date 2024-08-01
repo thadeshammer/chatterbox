@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY datastore/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY datastore/ ./datastore
+COPY secrets/datastore /run/secrets/datastore
+COPY secrets/cert /run/secrets/cert
+
+EXPOSE 443

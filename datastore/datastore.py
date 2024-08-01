@@ -1,17 +1,27 @@
-# datastore/__init__.py
 import logging
 import os
 import ssl
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from datastore.config import Config
-from datastore.db import async_create_all_tables
-
-# Import tables for creation here.
-from datastore.models import DummyModel
-from datastore.utils import setup_logging
 from fastapi import FastAPI
+
+from datastore.entities.models import (  # pylint: disable=unused-import
+    Board,
+    Category,
+    Comment,
+    CommentVote,
+    Event,
+    EventVote,
+    Post,
+    PostVote,
+    User,
+    UserProfile,
+)
+
+from .config import Config
+from .db import async_create_all_tables
+from .utils import setup_logging
 
 CERT_FILE_PATH = os.getenv("CERT_FILE_PATH")
 KEY_FILE_PATH = os.getenv("KEY_FILE_PATH")
@@ -22,6 +32,9 @@ setup_logging(Config.LOGGING_CONFIG_FILE)
 
 # "Using selector: EpollSelector" spam
 logging.getLogger("asyncio").setLevel(logging.WARNING)
+# Set to DEBUG to figure out the at-times misleading greenlet spawn error.
+# See /tests/datastore/model_sanity/test_greenlet_red_herring to do this.
+logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)  # Set to debug level to capture detailed logs
@@ -46,20 +59,12 @@ async def lifespan(
 
 def create_app() -> FastAPI:
     fastapi_app = FastAPI(lifespan=lifespan)
-
     fastapi_app.debug = False
-
-    # Log the worker PID
-    worker_pid = os.getpid()
-    logger.info(f"Worker PID: {worker_pid}")
 
     # TODO create and setup basic router
     # fastapi_app.include_router(router)
 
     return fastapi_app
-
-
-app = create_app()
 
 
 if __name__ == "__main__":

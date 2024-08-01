@@ -15,7 +15,7 @@ services:
       - "5432:5432"
     healthcheck:
       test: "pg_isready -U postgres -d chatterboxdb -h localhost -p 5432 > /tmp/pg_isready.log 2>&1 || (cat /tmp/pg_isready.log && exit 1)"
-      interval: 30s
+      interval: 10s
       timeout: 10s
       retries: 5
 
@@ -42,7 +42,7 @@ services:
   datastore:
     build:
       context: .
-      dockerfile: services/Dockerfile-datastore
+      dockerfile: Dockerfile-datastore
     command: >
       uvicorn datastore.__init__:app
       --host 0.0.0.0
@@ -64,7 +64,7 @@ services:
       DB_SERVICE_NAME: postgres
       DB_PORT: 5432
       TEST_DB_NAME: chatterbox_testdb
-      TEST_DATABASE_USER: $(cat /run/secrets/datastore/test_postgres_user.txt)
+      TEST_DATABASE_USER_FILE: /run/secrets/datastore/test_postgres_user.txt
       TEST_DB_SERVICE_NAME: test-postgres
       TEST_DB_PORT: 5433
       REDIS_HOST: redis

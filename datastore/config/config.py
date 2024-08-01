@@ -12,7 +12,7 @@ class ConfigLoadError(Exception):
 
 class Config:
     # Singleton pattern
-    _instance: "Config" = None
+    _instance: Optional["Config"] = None
     _initialized = False
 
     server_start_time = datetime.now(timezone.utc)
@@ -29,16 +29,20 @@ class Config:
     _sqlmodel_database_uri: Optional[str] = None
     _db_name: Optional[str] = None
 
-    # defaults are typical test-db (MySQL) instance
+    # The defaults / fallbacks are the Pytest flow, since Pytest doesn't run in the container but it
+    # DOES run against the test DB/Redis containers.
+    # TODO move the pytest config to conftest.py
     POSTGRES_USER_FILE: Optional[str] = None
     POSTGRES_USER_PASSWORD_FILE: Optional[str] = None
-    TESTDB_PASSWORD_FILE_FALLBACK = "./secrets/test_postgres_password.txt"
+    TESTDB_USER_FILE_FALLBACK = "./secrets/datastore/test_postgres_user.txt"
+    TESTDB_PASSWORD_FILE_FALLBACK = "./secrets/datastore/test_postgres_password.txt"
     DATABASE_PREFIX = os.getenv("DATABASE_PREFIX", "postgresql+asyncpg://")
-    DBNAME = os.getenv("DATABASE_NAME", "lurkerbothunter-testdb")
+    DBNAME = os.getenv("DATABASE_NAME", "chatterbox_testdb")
     DBSERVICE_NAME = os.getenv(
         "DB_SERVICE_NAME", "localhost"
     )  # "test-db" docker service name
-    DBPORT = os.getenv("DB_PORT", "3307")
+    TEST_DBPORT_FALLBACK = "5433"
+    DBPORT = os.getenv("DB_PORT", TEST_DBPORT_FALLBACK)
 
     # defaults are typical test-redis instance
     REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
@@ -62,7 +66,9 @@ class Config:
             cls.POSTGRES_USER_PASSWORD_FILE = os.getenv("DATABASE_USER_PASSWORD_FILE")
             cls._db_name = os.getenv("DATABASE_NAME")
         elif cls.ENVIRONMENT in ["pytest", "test", "local"]:
-            cls.POSTGRES_USER_FILE = os.getenv("TEST_DATABASE_USER")
+            cls.POSTGRES_USER_FILE = os.getenv(
+                "TEST_DATABASE_USER", cls.TESTDB_USER_FILE_FALLBACK
+            )
             cls.POSTGRES_USER_PASSWORD_FILE = os.getenv(
                 "TEST_DATABASE_PASSWORD_FILE", cls.TESTDB_PASSWORD_FILE_FALLBACK
             )
@@ -77,9 +83,10 @@ class Config:
         if not cls._initialized:
             cls.initialize()
 
-        pw_file = cls.POSTGRES_USER_PASSWORD_FILE
         user: Optional[str] = None
+        user_file = cls.POSTGRES_USER_FILE
         password: Optional[str] = None
+        pw_file = cls.POSTGRES_USER_PASSWORD_FILE
 
         if pw_file is None:
             raise EnvironmentError(f"DB password file not set: {pw_file}")
@@ -91,8 +98,10 @@ class Config:
         if password is None or len(password) == 0:
             raise EnvironmentError(f"DB password file is empty: {pw_file}")
 
+        if user_file is None:
+            raise EnvironmentError(f"DB user file not set: {user_file}")
         try:
-            with open(cls.POSTGRES_USER_FILE, "r", encoding="utf8") as file:
+            with open(user_file, "r", encoding="utf8") as file:
                 user = file.read().strip()
         except FileNotFoundError as e:
             raise EnvironmentError("DB username file missing.") from e
@@ -104,8 +113,9 @@ class Config:
         # uri = f"postgresql+asyncpg://user:password@postgres/chatterboxdb"
         prefix = cls.DATABASE_PREFIX
         credentials = f"{user}:{password}"
+        port = cls.DBPORT
         if cls.DBPORT is not None:
-            service_and_port = f"{cls.DBSERVICE_NAME}:{cls.DBPORT}"
+            service_and_port = f"{cls.DBSERVICE_NAME}:{port}"
         else:
             service_and_port = f"{cls.DBSERVICE_NAME}:3306"
         uri = f"{prefix}{credentials}@{service_and_port}/{cls.DBNAME}"
