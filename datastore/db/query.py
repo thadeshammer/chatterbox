@@ -44,6 +44,10 @@ from .db import async_session
 logger = logging.getLogger(__name__)
 
 
+# NOTE Yes, I tried generics with this for my first time; it blew up spectacularly. Will play
+# more with it later.
+
+
 class DSQueryError(Exception):
     pass
 
