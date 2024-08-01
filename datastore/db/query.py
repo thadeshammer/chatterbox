@@ -10,7 +10,7 @@ from datastore.entities.models import User, UserCreate, UserRead
 
 from .db import get_db
 
-logger = logging.getLogger("__name__")
+logger = logging.getLogger(__name__)
 
 
 class DSQueryError(Exception):

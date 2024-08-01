@@ -3,7 +3,6 @@
 from .board import Board, BoardCreate, BoardRead
 from .category import Category, CategoryCreate, CategoryRead
 from .comment import Comment, CommentCreate, CommentRead
-from .dummy_model import DummyModel
 from .event import Event, EventCreate, EventRead
 from .post import Post, PostCreate, PostRead
 from .user import User, UserCreate, UserRead
@@ -34,7 +33,6 @@ __all__ = [
     "CommentVote",
     "CommentVoteCreate",
     "CommentVoteRead",
-    "DummyModel",
     "EventVote",
     "EventVoteCreate",
     "EventVoteRead",

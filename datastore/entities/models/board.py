@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 
 
 class BoardBase(SQLModel, table=False):
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     title: str = Field(nullable=False, min_length=10, max_length=150)
     description: str = Field(nullable=False, min_length=10, max_length=500)
 
@@ -38,6 +37,7 @@ class Board(BoardBase, table=True):
     id: str = Field(
         default_factory=lambda: make_entity_id(EntityPrefix.BOARD), primary_key=True
     )
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
     user: "User" = Relationship(
         back_populates="boards", sa_relationship_kwargs={"lazy": "subquery"}
@@ -56,3 +56,4 @@ class BoardCreate(BoardBase):
 
 class BoardRead(BoardBase):
     id: str = Field(primary_key=True)
+    created_at: datetime = Field()

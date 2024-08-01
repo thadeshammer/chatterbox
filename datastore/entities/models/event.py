@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 
 
 class EventBase(SQLModel, table=False):
-    created_at: datetime = Field(default_factory=datetime.utcnow)
     title: str = Field(nullable=False, min_length=10, max_length=150)
     content: str = Field(nullable=False, min_length=10, max_length=3000)
 
@@ -41,6 +40,7 @@ class Event(EventBase, table=True):
     id: str = Field(
         default_factory=lambda: make_entity_id(EntityPrefix.POST), primary_key=True
     )
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
     user: "User" = Relationship(
         back_populates="events", sa_relationship_kwargs={"lazy": "subquery"}
@@ -59,3 +59,4 @@ class EventCreate(EventBase):
 
 class EventRead(EventBase):
     id: str = Field(primary_key=True)
+    created_at: datetime = Field()

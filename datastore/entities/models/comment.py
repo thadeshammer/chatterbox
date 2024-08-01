@@ -12,8 +12,6 @@ if TYPE_CHECKING:
 
 
 class CommentBase(SQLModel, table=False):
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
-
     content: str = Field(..., min_length=10, max_length=3000, nullable=False)
 
     approved: bool = Field(default=True)
@@ -39,6 +37,7 @@ class Comment(CommentBase, table=True):
     id: str = Field(
         default_factory=lambda: make_entity_id(EntityPrefix.POST), primary_key=True
     )
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
     user: "User" = Relationship(
         back_populates="comments", sa_relationship_kwargs={"lazy": "subquery"}
@@ -57,3 +56,4 @@ class CommentCreate(CommentBase):
 
 class CommentRead(CommentBase):
     id: str = Field(primary_key=True)
+    created_at: datetime = Field()

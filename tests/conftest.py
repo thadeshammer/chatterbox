@@ -13,13 +13,20 @@ from sqlalchemy.sql import text
 from sqlmodel import SQLModel
 
 from datastore.config import Config
-from datastore.entities.models import (  # pylint: disable=unused-import; Board,; Category,; Comment,; CommentVote,; DummyModel,; EventVote,; Post,; PostVote,; UserProfile,
+from datastore.entities.models import (  # pylint: disable=unused-import
+    Board,
+    Category,
+    Comment,
+    Event,
+    Post,
     User,
+    UserProfile,
+    Votes,
 )
 
 _TEST_DB_URI = Config.get_db_uri()
 
-logger = logging.getLogger("__name__")
+logger = logging.getLogger(__name__)
 logger.debug(f"{_TEST_DB_URI=}")
 
 

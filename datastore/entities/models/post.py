@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 
 
 class PostBase(SQLModel, table=False):
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     title: str = Field(nullable=False, min_length=10, max_length=150)
     content: str = Field(nullable=False, min_length=10, max_length=3000)
 
@@ -62,3 +61,4 @@ class PostCreate(PostBase):
 
 class PostRead(PostBase):
     id: str = Field(primary_key=True)
+    created_at: datetime = Field()

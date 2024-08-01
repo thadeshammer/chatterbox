@@ -19,15 +19,16 @@ class VoteType(StrEnum):
 
 class VoteBase(SQLModel, table=False):
     vote: str = Field(..., nullable=False)  # TODO enforce adherence to VoteType
-    voted_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
-
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
 
+
+class VoteBaseDelegate(VoteBase):
+    voted_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     deleted: bool = Field(default=False)
     deleted_at: Optional[datetime] = Field(default=None)
 
 
-class CommentVote(VoteBase, table=True):
+class CommentVote(VoteBaseDelegate, table=True):
     __tablename__ = "comment_votes"
 
     id: str = Field(
@@ -44,15 +45,18 @@ class CommentVote(VoteBase, table=True):
     )
 
 
-class CommentVoteCreate(VoteBase):
+class CommentVoteCreate(VoteBaseDelegate):
     pass
 
 
-class CommentVoteRead(VoteBase):
+class CommentVoteRead(VoteBaseDelegate):
     id: str = Field(primary_key=True)
+    voted_at: datetime
+    deleted: bool
+    deleted_at: Optional[datetime]
 
 
-class PostVote(VoteBase, table=True):
+class PostVote(VoteBaseDelegate, table=True):
     __tablename__ = "post_votes"
 
     id: str = Field(
@@ -68,15 +72,18 @@ class PostVote(VoteBase, table=True):
     )
 
 
-class PostVoteCreate(VoteBase):
+class PostVoteCreate(VoteBaseDelegate):
     pass
 
 
-class PostVoteRead(VoteBase):
+class PostVoteRead(VoteBaseDelegate):
     id: str = Field(primary_key=True)
+    voted_at: datetime
+    deleted: bool
+    deleted_at: Optional[datetime]
 
 
-class EventVote(VoteBase, table=True):
+class EventVote(VoteBaseDelegate, table=True):
     __tablename__ = "event_votes"
 
     id: str = Field(
@@ -92,9 +99,12 @@ class EventVote(VoteBase, table=True):
     )
 
 
-class EventVoteCreate(VoteBase):
+class EventVoteCreate(VoteBaseDelegate):
     pass
 
 
-class EventVoteRead(VoteBase):
+class EventVoteRead(VoteBaseDelegate):
     id: str = Field(primary_key=True)
+    voted_at: datetime
+    deleted: bool
+    deleted_at: Optional[datetime]
