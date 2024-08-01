@@ -19,6 +19,7 @@ MOCK_CREATE_USER_REQUEST = {"name": "beeeeeghootie", "email": "beeghootie@email.
 
 # NOTE These requests will come with a user id in their payload typically.
 
+# pylint: disable=too-many-locals
 MOCK_CREATE_BOARD_REQUEST = {
     "title": "Super Cool Hangout Space",
     "description": "it's in the name, yo",

@@ -28,13 +28,9 @@ class UserCreate(SQLModel):
     name: Annotated[
         str,
         StringConstraints(min_length=5, max_length=30, pattern=LOGIN_NAME_REGEX),
-        Field(
-            ...,
-            nullable=False,
-            unique=True,
-        ),
+        Field(..., nullable=False, unique=True, index=True),
     ]
-    email: EmailStr = Field(..., nullable=False, unique=True)
+    email: EmailStr = Field(..., nullable=False, unique=True, index=True)
 
     @model_validator(mode="before")
     @classmethod

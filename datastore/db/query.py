@@ -31,11 +31,21 @@ async def get_user_by_id(user_id: str) -> Optional[UserRead]:
             result: UserRead = (
                 (await session.execute(query)).unique().scalar_one_or_none()
             )
-    return result
+    if result is not None:
+        return UserRead(**result.model_dump())
+
+    return None
 
 
 async def get_user_by_name(user_name: str) -> Optional[UserRead]:
     async with async_session() as db:
+        logger.debug(f"selecting for {user_name}")
         query = select(User).where(User.name == user_name)
-        result: UserRead = (await db.execute(query)).unique().scalar_one_or_none()
-    return result
+        logger.debug(f"{query=}")
+        result: User = (await db.execute(query)).unique().scalar_one_or_none()
+        logger.debug(f"got {result=}")
+
+    if result is not None:
+        return UserRead(**result.model_dump())
+
+    return None

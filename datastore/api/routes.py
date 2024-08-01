@@ -12,7 +12,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.post("/user/")
+@router.post("/create/user/")
 async def create_user_endpoint(user: UserCreate):
     try:
         logger.debug("about to call the query module")
@@ -23,32 +23,35 @@ async def create_user_endpoint(user: UserCreate):
         raise HTTPException(status_code=400, detail="Failed validation.") from e
     except Exception as e:
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal Server Error.") from e
+        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
     return {"message": "ok."}
 
 
-@router.get("/users/", response_model=UserRead)
+@router.get("/get/user/", response_model=UserRead)
 async def get_user(
     user_id: Optional[str] = Query(None), user_name: Optional[str] = Query(None)
-):
+) -> UserRead:
+    logger.debug("In /get/user/")
     try:
-        if user_id:
+        if user_id is not None:
+            logger.debug(f"Getting user by id: {user_id}")
             user = await get_user_by_id(user_id)
-        elif user_name:
+        elif user_name is not None:
+            logger.debug(f"Getting user by name: {user_name}")
             user = await get_user_by_name(user_name)
         else:
             raise HTTPException(
                 status_code=400, detail="Either user_id or user_name must be provided"
             )
 
-        if not user:
+        if user is None:
             raise HTTPException(status_code=404, detail="User not found")
     except ValidationError as e:
         logger.error(f"Failed validation: {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
     except Exception as e:
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal Server Error.") from e
+        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
     return user
