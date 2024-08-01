@@ -12,10 +12,12 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.post("/user/", response_model=UserRead)
+@router.post("/user/")
 async def create_user_endpoint(user: UserCreate):
     try:
+        logger.debug("about to call the query module")
         await create_user(user)
+        logger.debug("escaped the query module")
     except ValidationError as e:
         logger.error(f"Failed to create user: validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
