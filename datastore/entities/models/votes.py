@@ -4,7 +4,7 @@ from enum import StrEnum
 from typing import TYPE_CHECKING, Optional, cast
 
 from pydantic import model_validator
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship, SQLModel, UniqueConstraint
 from sqlmodel._compat import SQLModelConfig
 
 from datastore.entities.ids import EntityPrefix, make_entity_id
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 class VoteType(StrEnum):
     UP = "up"  # explicit up vote
-    # NONE = "none"  # if they vote then un-vote  DO WE NEED THIS??
+    NONE = "none"  # if they vote then un-vote
     DOWN = "down"  # explicit down vote
 
 
@@ -27,6 +27,7 @@ class _VoteCreate(SQLModel):
     @classmethod
     def validate_fields(cls, data: "_VoteCreate") -> "_VoteCreate":
         possible_votes = VoteType.__members__.values()
+        data.vote = data.vote.lower()
         if data.vote not in possible_votes:
             raise ValueError(f"Invalid value for vote. Use: {possible_votes}")
         return data
@@ -53,6 +54,7 @@ class PostVoteCreate(_VoteCreate):
 
 class _VoteBase(SQLModel):
     voted_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    last_edit_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     deleted: bool = Field(default=False)
     deleted_at: Optional[datetime] = Field(default=None)
 
@@ -71,6 +73,8 @@ class CommentVote(_VoteBase, CommentVoteCreate, table=True):
     comment: "Comment" = Relationship(
         back_populates="votes", sa_relationship_kwargs={"lazy": "subquery"}
     )
+
+    __table_args__ = (UniqueConstraint("user_id", "comment_id"),)
 
 
 class CommentVoteRead(_VoteBase, CommentVoteCreate):
@@ -91,6 +95,8 @@ class PostVote(_VoteBase, PostVoteCreate, table=True):
         back_populates="votes", sa_relationship_kwargs={"lazy": "subquery"}
     )
 
+    __table_args__ = (UniqueConstraint("user_id", "post_id"),)
+
 
 class PostVoteRead(_VoteBase, PostVoteCreate):
     id: str = Field(primary_key=True)
@@ -109,6 +115,8 @@ class EventVote(_VoteBase, EventVoteCreate, table=True):
     event: "Event" = Relationship(
         back_populates="votes", sa_relationship_kwargs={"lazy": "subquery"}
     )
+
+    __table_args__ = (UniqueConstraint("user_id", "event_id"),)
 
 
 class EventVoteRead(_VoteBase, EventVoteCreate):

@@ -25,7 +25,7 @@ handlers:
     class: logging.FileHandler
     formatter: detailed
     level: DEBUG
-    filename: ./test_logs/db_pydebug.log
+    filename: ./test_logs/db_pytest.log
 
 loggers:
   "":

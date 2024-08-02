@@ -2,8 +2,10 @@
 """Centralized location for app queries to seperate the ORM from the core.
 """
 import logging
+from datetime import datetime
 from typing import Optional
 
+from sqlalchemy.dialects.postgresql import insert
 from sqlmodel import select
 
 from datastore.entities.models import (
@@ -16,28 +18,18 @@ from datastore.entities.models import (
     Comment,
     CommentCreate,
     CommentRead,
-    CommentVote,
-    CommentVoteCreate,
-    CommentVoteRead,
     Event,
     EventCreate,
     EventRead,
-    EventVote,
-    EventVoteCreate,
-    EventVoteRead,
     Post,
     PostCreate,
     PostRead,
-    PostVote,
-    PostVoteCreate,
-    PostVoteRead,
     User,
     UserCreate,
     UserProfile,
     UserProfileCreate,
     UserProfileRead,
     UserRead,
-    VoteType,
 )
 
 from .db import async_session
@@ -118,36 +110,6 @@ async def create_user_profile(
         await session.commit()
         await session.refresh(user_profile_data)
         response = UserProfileRead.model_validate(user_profile_data)
-    return response
-
-
-async def create_comment_vote(vote_create: CommentVoteCreate) -> CommentVoteRead:
-    async with async_session() as session:
-        vote_data = CommentVote(**vote_create.model_dump())
-        session.add(vote_data)
-        await session.commit()
-        await session.refresh(vote_data)
-        response = CommentVoteRead.model_validate(vote_data)
-    return response
-
-
-async def create_post_vote(vote_create: PostVoteCreate) -> PostVoteRead:
-    async with async_session() as session:
-        vote_data = PostVote(**vote_create.model_dump())
-        session.add(vote_data)
-        await session.commit()
-        await session.refresh(vote_data)
-        response = PostVoteRead.model_validate(vote_data)
-    return response
-
-
-async def create_event_vote(vote_create: EventVoteCreate) -> EventVoteRead:
-    async with async_session() as session:
-        vote_data = EventVote(**vote_create.model_dump())
-        session.add(vote_data)
-        await session.commit()
-        await session.refresh(vote_data)
-        response = EventVoteRead.model_validate(vote_data)
     return response
 
 
@@ -234,83 +196,3 @@ async def get_user_profile_by_id(user_profile_id: str) -> Optional[UserProfileRe
                 UserProfileRead.model_validate(result) if result is not None else None
             )
     return response
-
-
-async def get_post_votes(post_id: str) -> list[PostVoteRead]:
-    async with async_session() as session:
-        async with session.begin():
-            query = select(PostVote).where(PostVote.post_id == post_id)
-            result: list[PostVote] = (await session.execute(query)).scalars().all()
-            votes: list[PostVoteRead] = [
-                PostVoteRead.model_validate(vote) for vote in result
-            ]
-    return votes
-
-
-async def get_comment_votes(comment_id: str) -> list[CommentVoteRead]:
-    async with async_session() as session:
-        async with session.begin():
-            query = select(CommentVote).where(CommentVote.comment_id == comment_id)
-            result = (await session.execute(query)).scalars().all()
-            votes = [CommentVoteRead.model_validate(vote) for vote in result]
-    return votes
-
-
-async def get_event_votes(event_id: str) -> list[EventVoteRead]:
-    async with async_session() as session:
-        async with session.begin():
-            query = select(EventVote).where(EventVote.event_id == event_id)
-            result = (await session.execute(query)).scalars().all()
-            votes = [EventVoteRead.model_validate(vote) for vote in result]
-    return votes
-
-
-async def get_post_vote_tallies(post_id: str) -> dict[str, int]:
-    async with async_session() as session:
-        async with session.begin():
-            query = select(PostVote).where(PostVote.post_id == post_id)
-            result = (await session.execute(query)).scalars().all()
-
-    total_votes = len(result)
-    total_up_votes = sum(1 for vote in result if vote.vote == VoteType.UP)
-    total_down_votes = sum(1 for vote in result if vote.vote == VoteType.DOWN)
-
-    return {
-        "total_votes": total_votes,
-        "total_up_votes": total_up_votes,
-        "total_down_votes": total_down_votes,
-    }
-
-
-async def get_comment_vote_tallies(comment_id: str) -> dict[str, int]:
-    async with async_session() as session:
-        async with session.begin():
-            query = select(CommentVote).where(CommentVote.comment_id == comment_id)
-            result = (await session.execute(query)).scalars().all()
-
-    total_votes = len(result)
-    total_up_votes = sum(1 for vote in result if vote.vote == VoteType.UP)
-    total_down_votes = sum(1 for vote in result if vote.vote == VoteType.DOWN)
-
-    return {
-        "total_votes": total_votes,
-        "total_up_votes": total_up_votes,
-        "total_down_votes": total_down_votes,
-    }
-
-
-async def get_event_vote_tallies(event_id: str) -> dict[str, int]:
-    async with async_session() as session:
-        async with session.begin():
-            query = select(EventVote).where(EventVote.event_id == event_id)
-            result = (await session.execute(query)).scalars().all()
-
-    total_votes = len(result)
-    total_up_votes = sum(1 for vote in result if vote.vote == VoteType.UP)
-    total_down_votes = sum(1 for vote in result if vote.vote == VoteType.DOWN)
-
-    return {
-        "total_votes": total_votes,
-        "total_up_votes": total_up_votes,
-        "total_down_votes": total_down_votes,
-    }
