@@ -57,6 +57,7 @@ async def create_user(user_create: UserCreate) -> UserRead:
         user_data = User(**user_create.model_dump())
         session.add(user_data)
         await session.commit()
+        await session.refresh(user_data)
     return UserRead(**user_data.model_dump())
 
 
@@ -65,6 +66,7 @@ async def create_board(board_create: BoardCreate) -> BoardRead:
         board_data = Board(**board_create.model_dump())
         session.add(board_data)
         await session.commit()
+        await session.refresh(board_data)
     return BoardRead(**board_data.model_dump())
 
 
@@ -73,6 +75,7 @@ async def create_category(category_create: CategoryCreate) -> CategoryRead:
         category_data = Category(**category_create.model_dump())
         session.add(category_data)
         await session.commit()
+        await session.refresh(category_data)
     return CategoryRead(**category_data.model_dump())
 
 
@@ -81,6 +84,7 @@ async def create_comment(comment_create: CommentCreate) -> CommentRead:
         comment_data = Comment(**comment_create.model_dump())
         session.add(comment_data)
         await session.commit()
+        await session.refresh(comment_data)
     return CommentRead(**comment_data.model_dump())
 
 
@@ -89,6 +93,7 @@ async def create_event(event_create: EventCreate) -> EventRead:
         event_data = Event(**event_create.model_dump())
         session.add(event_data)
         await session.commit()
+        await session.refresh(event_data)
     return EventRead(**event_data.model_dump())
 
 
@@ -97,6 +102,7 @@ async def create_post(post_create: PostCreate) -> PostRead:
         post_data = Post(**post_create.model_dump())
         session.add(post_data)
         await session.commit()
+        await session.refresh(post_data)
     return PostRead(**post_data.model_dump())
 
 
@@ -107,6 +113,7 @@ async def create_user_profile(
         user_profile_data = UserProfile(**user_profile_create.model_dump())
         session.add(user_profile_data)
         await session.commit()
+        await session.refresh(user_profile_data)
     return UserProfileRead(**user_profile_data.model_dump())
 
 
@@ -115,6 +122,7 @@ async def create_comment_vote(vote_create: CommentVoteCreate) -> CommentVoteRead
         vote_data = CommentVote(**vote_create.model_dump())
         session.add(vote_data)
         await session.commit()
+        await session.refresh(vote_data)
     return CommentVoteRead(**vote_data.model_dump())
 
 
@@ -123,6 +131,7 @@ async def create_post_vote(vote_create: PostVoteCreate) -> PostVoteRead:
         vote_data = PostVote(**vote_create.model_dump())
         session.add(vote_data)
         await session.commit()
+        await session.refresh(vote_data)
     return PostVoteRead(**vote_data.model_dump())
 
 
@@ -131,6 +140,7 @@ async def create_event_vote(vote_create: EventVoteCreate) -> EventVoteRead:
         vote_data = EventVote(**vote_create.model_dump())
         session.add(vote_data)
         await session.commit()
+        await session.refresh(vote_data)
     return EventVoteRead(**vote_data.model_dump())
 
 

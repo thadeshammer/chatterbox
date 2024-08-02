@@ -12,14 +12,13 @@ if TYPE_CHECKING:
 
 
 class CommentCreate(SQLModel):
-    content: str = Field(..., min_length=10, max_length=3000, nullable=False)
+    content: str = Field(..., min_length=1, max_length=3000, nullable=False)
     user_id: str = Field(..., nullable=False, foreign_key="users.id", index=True)
     post_id: str = Field(..., nullable=False, foreign_key="posts.id", index=True)
 
     model_config = cast(
         SQLModelConfig,
         {
-            # "arbitrary_types_allowed": "True",
             "populate_by_name": "True",
         },
     )

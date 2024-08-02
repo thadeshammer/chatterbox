@@ -20,7 +20,6 @@ class UserProfileCreate(SQLModel):
     model_config = cast(
         SQLModelConfig,
         {
-            # "arbitrary_types_allowed": "True",
             "populate_by_name": "True",
         },
     )

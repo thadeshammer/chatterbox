@@ -12,15 +12,14 @@ if TYPE_CHECKING:
 
 
 class PostCreate(SQLModel):
-    title: str = Field(..., nullable=False, min_length=10, max_length=150)
-    content: str = Field(..., nullable=False, min_length=10, max_length=3000)
+    name: str = Field(..., nullable=False, min_length=3, max_length=150)
+    content: str = Field(..., nullable=False, min_length=1, max_length=3000)
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
     category_id: str = Field(..., nullable=False, foreign_key="categories.id")
 
     model_config = cast(
         SQLModelConfig,
         {
-            # "arbitrary_types_allowed": "True",
             "populate_by_name": "True",
         },
     )
@@ -41,6 +40,7 @@ class Post(PostBase, table=True):
     id: str = Field(
         default_factory=lambda: make_entity_id(EntityPrefix.POST), primary_key=True
     )
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
     user: "User" = Relationship(
         back_populates="posts", sa_relationship_kwargs={"lazy": "subquery"}

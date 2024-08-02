@@ -12,15 +12,14 @@ if TYPE_CHECKING:
 
 
 class EventCreate(SQLModel):
-    title: str = Field(nullable=False, min_length=10, max_length=150)
-    content: str = Field(nullable=False, min_length=10, max_length=3000)
+    name: str = Field(nullable=False, min_length=3, max_length=150)
+    content: str = Field(nullable=False, min_length=1, max_length=3000)
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
     board_id: str = Field(..., nullable=False, foreign_key="boards.id")
 
     model_config = cast(
         SQLModelConfig,
         {
-            # "arbitrary_types_allowed": "True",
             "populate_by_name": "True",
         },
     )

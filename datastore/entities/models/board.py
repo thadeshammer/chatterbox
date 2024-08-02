@@ -12,14 +12,13 @@ if TYPE_CHECKING:
 
 
 class BoardCreate(SQLModel):
-    title: str = Field(..., nullable=False, min_length=10, max_length=150)
-    description: str = Field(..., nullable=False, min_length=10, max_length=500)
+    name: str = Field(..., nullable=False, min_length=3, max_length=150)
+    description: str = Field(..., nullable=False, min_length=5, max_length=500)
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
 
     model_config = cast(
         SQLModelConfig,
         {
-            # "arbitrary_types_allowed": "True",
             "populate_by_name": "True",
         },
     )

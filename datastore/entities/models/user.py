@@ -1,6 +1,6 @@
 # datastore/entities/models/user.py
 from datetime import datetime
-from typing import TYPE_CHECKING, Annotated, Any, Optional, cast
+from typing import TYPE_CHECKING, Annotated, Optional, cast
 
 from pydantic import EmailStr, StringConstraints, model_validator
 from sqlmodel import Field, Relationship, SQLModel
@@ -27,29 +27,28 @@ if TYPE_CHECKING:
 class UserCreate(SQLModel):
     name: Annotated[
         str,
-        StringConstraints(min_length=5, max_length=30, pattern=LOGIN_NAME_REGEX),
+        StringConstraints(min_length=1, max_length=30, pattern=LOGIN_NAME_REGEX),
         Field(..., nullable=False, unique=True, index=True),
     ]
     email: EmailStr = Field(..., nullable=False, unique=True, index=True)
 
-    @model_validator(mode="before")
+    @model_validator(mode="after")
     @classmethod
-    def validate_fields(cls, data: dict[str, Any]) -> dict[str, Any]:
-        data["name"] = data["name"].lower()
-        data["email"] = data["email"].lower()
+    def validate_fields(cls, data: "UserCreate") -> "UserCreate":
+        data.name = data.name.lower()
+        data.email = data.email.lower()
         return data
-
-
-class UserBase(UserCreate):
-    user_profile_id: Optional[str] = Field(default=None, nullable=True)
 
     model_config = cast(
         SQLModelConfig,
         {
-            # "arbitrary_types_allowed": "True",
             "populate_by_name": "True",
         },
     )
+
+
+class UserBase(UserCreate):
+    user_profile_id: Optional[str] = Field(default=None, nullable=True)
 
 
 class User(UserBase, table=True):

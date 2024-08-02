@@ -1,10 +1,11 @@
 # datastore/entities/models/votes.py
 from datetime import datetime
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from pydantic import model_validator
 from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel._compat import SQLModelConfig
 
 from datastore.entities.ids import EntityPrefix, make_entity_id
 
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 
 class VoteType(StrEnum):
     UP = "up"  # explicit up vote
-    NONE = "none"  # if they vote then un-vote
+    # NONE = "none"  # if they vote then un-vote  DO WE NEED THIS??
     DOWN = "down"  # explicit down vote
 
 
@@ -22,13 +23,20 @@ class _VoteCreate(SQLModel):
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
     vote: str = Field(..., nullable=False)  # TODO enforce adherence to VoteType
 
-    @model_validator(mode="before")
+    @model_validator(mode="after")
     @classmethod
-    def validate_fields(cls, data: dict[str, Any]) -> dict[str, Any]:
+    def validate_fields(cls, data: "_VoteCreate") -> "_VoteCreate":
         possible_votes = VoteType.__members__.values()
-        if not data["vote"] in possible_votes:
+        if data.vote not in possible_votes:
             raise ValueError(f"Invalid value for vote. Use: {possible_votes}")
         return data
+
+    model_config = cast(
+        SQLModelConfig,
+        {
+            "populate_by_name": "True",
+        },
+    )
 
 
 class CommentVoteCreate(_VoteCreate):
