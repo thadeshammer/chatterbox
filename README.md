@@ -1,0 +1,3 @@
+Discord, Slack, and the like aren't really event-centric AND they're doing dubious things with user data. An event is something hosted by a content creator or a club (a game night, an AMA, etc.) which should be front-and-center for a given community's communication space.
+
+The goal of this (very early, aiming high) project is to create and distribute and open-source solution to this: an event-centric async communication platform, where the users control their data and understand what's happening with it. (And if those in control of a given instance of this app do something uncool, you can just bail, start your own, etc.)
