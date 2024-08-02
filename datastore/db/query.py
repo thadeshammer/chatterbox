@@ -58,7 +58,8 @@ async def create_user(user_create: UserCreate) -> UserRead:
         session.add(user_data)
         await session.commit()
         await session.refresh(user_data)
-    return UserRead(**user_data.model_dump())
+        response = UserRead.model_validate(user_data)
+    return response
 
 
 async def create_board(board_create: BoardCreate) -> BoardRead:
@@ -67,7 +68,8 @@ async def create_board(board_create: BoardCreate) -> BoardRead:
         session.add(board_data)
         await session.commit()
         await session.refresh(board_data)
-    return BoardRead(**board_data.model_dump())
+        response = BoardRead.model_validate(board_data)
+    return response
 
 
 async def create_category(category_create: CategoryCreate) -> CategoryRead:
@@ -76,7 +78,8 @@ async def create_category(category_create: CategoryCreate) -> CategoryRead:
         session.add(category_data)
         await session.commit()
         await session.refresh(category_data)
-    return CategoryRead(**category_data.model_dump())
+        response = CategoryRead.model_validate(category_data)
+    return response
 
 
 async def create_comment(comment_create: CommentCreate) -> CommentRead:
@@ -85,7 +88,8 @@ async def create_comment(comment_create: CommentCreate) -> CommentRead:
         session.add(comment_data)
         await session.commit()
         await session.refresh(comment_data)
-    return CommentRead(**comment_data.model_dump())
+        response = CommentRead.model_validate(comment_data)
+    return response
 
 
 async def create_event(event_create: EventCreate) -> EventRead:
@@ -94,7 +98,8 @@ async def create_event(event_create: EventCreate) -> EventRead:
         session.add(event_data)
         await session.commit()
         await session.refresh(event_data)
-    return EventRead(**event_data.model_dump())
+        response = EventRead.model_validate(event_data)
+    return response
 
 
 async def create_post(post_create: PostCreate) -> PostRead:
@@ -103,7 +108,8 @@ async def create_post(post_create: PostCreate) -> PostRead:
         session.add(post_data)
         await session.commit()
         await session.refresh(post_data)
-    return PostRead(**post_data.model_dump())
+        response = PostRead.model_validate(post_data)
+    return response
 
 
 async def create_user_profile(
@@ -114,7 +120,8 @@ async def create_user_profile(
         session.add(user_profile_data)
         await session.commit()
         await session.refresh(user_profile_data)
-    return UserProfileRead(**user_profile_data.model_dump())
+        response = UserProfileRead.model_validate(user_profile_data)
+    return response
 
 
 async def create_comment_vote(vote_create: CommentVoteCreate) -> CommentVoteRead:
@@ -123,7 +130,8 @@ async def create_comment_vote(vote_create: CommentVoteCreate) -> CommentVoteRead
         session.add(vote_data)
         await session.commit()
         await session.refresh(vote_data)
-    return CommentVoteRead(**vote_data.model_dump())
+        response = CommentVoteRead.model_validate(vote_data)
+    return response
 
 
 async def create_post_vote(vote_create: PostVoteCreate) -> PostVoteRead:
@@ -132,7 +140,8 @@ async def create_post_vote(vote_create: PostVoteCreate) -> PostVoteRead:
         session.add(vote_data)
         await session.commit()
         await session.refresh(vote_data)
-    return PostVoteRead(**vote_data.model_dump())
+        response = PostVoteRead.model_validate(vote_data)
+    return response
 
 
 async def create_event_vote(vote_create: EventVoteCreate) -> EventVoteRead:
@@ -141,7 +150,8 @@ async def create_event_vote(vote_create: EventVoteCreate) -> EventVoteRead:
         session.add(vote_data)
         await session.commit()
         await session.refresh(vote_data)
-    return EventVoteRead(**vote_data.model_dump())
+        response = EventVoteRead.model_validate(vote_data)
+    return response
 
 
 async def get_user_by_id(user_id: str) -> Optional[UserRead]:
@@ -151,24 +161,16 @@ async def get_user_by_id(user_id: str) -> Optional[UserRead]:
             result: UserRead = (
                 (await session.execute(query)).unique().scalar_one_or_none()
             )
-    if result is not None:
-        return UserRead(**result.model_dump())
-
-    return None
+        response = UserRead.model_validate(result) if result is not None else None
+    return response
 
 
 async def get_user_by_name(user_name: str) -> Optional[UserRead]:
     async with async_session() as db:
-        logger.debug(f"selecting for {user_name}")
         query = select(User).where(User.name == user_name)
-        logger.debug(f"{query=}")
         result: User = (await db.execute(query)).unique().scalar_one_or_none()
-        logger.debug(f"got {result=}")
-
-    if result is not None:
-        return UserRead(**result.model_dump())
-
-    return None
+        response = UserRead.model_validate(result) if result is not None else None
+    return response
 
 
 async def get_board_by_id(board_id: str) -> Optional[BoardRead]:
@@ -176,9 +178,8 @@ async def get_board_by_id(board_id: str) -> Optional[BoardRead]:
         async with session.begin():
             query = select(Board).where(Board.id == board_id)
             result: Board = (await session.execute(query)).unique().scalar_one_or_none()
-    if result is not None:
-        return BoardRead(**result.model_dump())
-    return None
+            response = BoardRead.model_validate(result) if result is not None else None
+    return response
 
 
 async def get_category_by_id(category_id: str) -> Optional[CategoryRead]:
@@ -188,9 +189,10 @@ async def get_category_by_id(category_id: str) -> Optional[CategoryRead]:
             result: Category = (
                 (await session.execute(query)).unique().scalar_one_or_none()
             )
-    if result is not None:
-        return CategoryRead(**result.model_dump())
-    return None
+            response = (
+                CategoryRead.model_validate(result) if result is not None else None
+            )
+    return response
 
 
 async def get_comment_by_id(comment_id: str) -> Optional[CommentRead]:
@@ -200,9 +202,10 @@ async def get_comment_by_id(comment_id: str) -> Optional[CommentRead]:
             result: Comment = (
                 (await session.execute(query)).unique().scalar_one_or_none()
             )
-    if result is not None:
-        return CommentRead(**result.model_dump())
-    return None
+            response = (
+                CommentRead.model_validate(result) if result is not None else None
+            )
+    return response
 
 
 async def get_event_by_id(event_id: str) -> Optional[EventRead]:
@@ -210,9 +213,8 @@ async def get_event_by_id(event_id: str) -> Optional[EventRead]:
         async with session.begin():
             query = select(Event).where(Event.id == event_id)
             result: Event = (await session.execute(query)).unique().scalar_one_or_none()
-    if result is not None:
-        return EventRead(**result.model_dump())
-    return None
+            response = EventRead.model_validate(result) if result is not None else None
+    return response
 
 
 async def get_post_by_id(post_id: str) -> Optional[PostRead]:
@@ -220,9 +222,8 @@ async def get_post_by_id(post_id: str) -> Optional[PostRead]:
         async with session.begin():
             query = select(Post).where(Post.id == post_id)
             result: Post = (await session.execute(query)).unique().scalar_one_or_none()
-    if result is not None:
-        return PostRead(**result.model_dump())
-    return None
+            response = PostRead.model_validate(result) if result is not None else None
+    return response
 
 
 async def get_user_profile_by_id(user_profile_id: str) -> Optional[UserProfileRead]:
@@ -232,6 +233,36 @@ async def get_user_profile_by_id(user_profile_id: str) -> Optional[UserProfileRe
             result: UserProfile = (
                 (await session.execute(query)).unique().scalar_one_or_none()
             )
-    if result is not None:
-        return UserProfileRead(**result.model_dump())
-    return None
+            response = (
+                UserProfileRead.model_validate(result) if result is not None else None
+            )
+    return response
+
+
+async def get_post_votes(post_id: str) -> list[PostVoteRead]:
+    async with async_session() as session:
+        async with session.begin():
+            query = select(PostVote).where(PostVote.post_id == post_id)
+            result: list[PostVote] = (await session.execute(query)).scalars().all()
+            votes: list[PostVoteRead] = [
+                PostVoteRead.model_validate(vote) for vote in result
+            ]
+    return votes
+
+
+async def get_comment_votes(comment_id: str) -> list[CommentVoteRead]:
+    async with async_session() as session:
+        async with session.begin():
+            query = select(CommentVote).where(CommentVote.comment_id == comment_id)
+            result = (await session.execute(query)).scalars().all()
+            votes = [CommentVoteRead.model_validate(vote) for vote in result]
+    return votes
+
+
+async def get_event_votes(event_id: str) -> list[EventVoteRead]:
+    async with async_session() as session:
+        async with session.begin():
+            query = select(EventVote).where(EventVote.event_id == event_id)
+            result = (await session.execute(query)).scalars().all()
+            votes = [EventVoteRead.model_validate(vote) for vote in result]
+    return votes
