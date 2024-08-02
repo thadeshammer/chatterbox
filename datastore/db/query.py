@@ -169,3 +169,69 @@ async def get_user_by_name(user_name: str) -> Optional[UserRead]:
         return UserRead(**result.model_dump())
 
     return None
+
+
+async def get_board_by_id(board_id: str) -> Optional[BoardRead]:
+    async with async_session() as session:
+        async with session.begin():
+            query = select(Board).where(Board.id == board_id)
+            result: Board = (await session.execute(query)).unique().scalar_one_or_none()
+    if result is not None:
+        return BoardRead(**result.model_dump())
+    return None
+
+
+async def get_category_by_id(category_id: str) -> Optional[CategoryRead]:
+    async with async_session() as session:
+        async with session.begin():
+            query = select(Category).where(Category.id == category_id)
+            result: Category = (
+                (await session.execute(query)).unique().scalar_one_or_none()
+            )
+    if result is not None:
+        return CategoryRead(**result.model_dump())
+    return None
+
+
+async def get_comment_by_id(comment_id: str) -> Optional[CommentRead]:
+    async with async_session() as session:
+        async with session.begin():
+            query = select(Comment).where(Comment.id == comment_id)
+            result: Comment = (
+                (await session.execute(query)).unique().scalar_one_or_none()
+            )
+    if result is not None:
+        return CommentRead(**result.model_dump())
+    return None
+
+
+async def get_event_by_id(event_id: str) -> Optional[EventRead]:
+    async with async_session() as session:
+        async with session.begin():
+            query = select(Event).where(Event.id == event_id)
+            result: Event = (await session.execute(query)).unique().scalar_one_or_none()
+    if result is not None:
+        return EventRead(**result.model_dump())
+    return None
+
+
+async def get_post_by_id(post_id: str) -> Optional[PostRead]:
+    async with async_session() as session:
+        async with session.begin():
+            query = select(Post).where(Post.id == post_id)
+            result: Post = (await session.execute(query)).unique().scalar_one_or_none()
+    if result is not None:
+        return PostRead(**result.model_dump())
+    return None
+
+
+async def get_user_profile_by_id(user_profile_id: str) -> Optional[UserProfileRead]:
+    async with async_session() as session:
+        async with session.begin():
+            query = select(UserProfile).where(UserProfile.id == user_profile_id)
+            result: UserProfile = (
+                (await session.execute(query)).unique().scalar_one_or_none()
+            )
+    if result is not None:
+        return UserProfileRead(**result.model_dump())
+    return None
