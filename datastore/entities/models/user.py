@@ -1,6 +1,6 @@
 # datastore/entities/models/user.py
 from datetime import datetime
-from typing import TYPE_CHECKING, Annotated, Optional, cast
+from typing import TYPE_CHECKING, Annotated, Any, Optional, cast
 
 from pydantic import EmailStr, StringConstraints, model_validator
 from sqlmodel import Field, Relationship, SQLModel
@@ -8,7 +8,7 @@ from sqlmodel._compat import SQLModelConfig
 
 from datastore.entities.ids import EntityPrefix, make_entity_id
 
-from .._validator_regexes import LOGIN_NAME_REGEX
+from .._validator_regexes import LOGIN_NAME_REGEX, NICKNAME_REGEX
 
 if TYPE_CHECKING:
     from . import (
@@ -31,6 +31,11 @@ class UserCreate(SQLModel):
         Field(..., nullable=False, unique=True, index=True),
     ]
     email: EmailStr = Field(..., nullable=False, unique=True, index=True)
+    nickname: Annotated[
+        Optional[str],
+        StringConstraints(min_length=1, max_length=30, pattern=NICKNAME_REGEX),
+        Field(default=None, unique=True, index=True),
+    ]
 
     @model_validator(mode="after")
     @classmethod
@@ -48,7 +53,10 @@ class UserCreate(SQLModel):
 
 
 class UserBase(UserCreate):
-    user_profile_id: Optional[str] = Field(default=None, nullable=True)
+    # this makes the relationship two directional; we can just query vs user-profile table to see
+    # if a table exists
+    # user_profile_id: Optional[str] = Field(default=None, nullable=True)
+    pass
 
 
 class User(UserBase, table=True):
@@ -91,3 +99,20 @@ class User(UserBase, table=True):
 class UserRead(UserBase):
     id: str = Field(primary_key=True)
     created_at: datetime = Field()
+
+
+class UserUpdate(SQLModel):
+    """NOTE changing user name or email could be tricky, we'll wire it up later"""
+
+    nickname: Annotated[
+        Optional[str],
+        StringConstraints(min_length=1, max_length=30, pattern=NICKNAME_REGEX),
+        Field(default=None, nullable=False, unique=True, index=True),
+    ]
+
+    @model_validator(mode="after")
+    @classmethod
+    def at_least_one_isnt_none(cls, data: "UserUpdate") -> "UserUpdate":
+        if not any(value is not None for value in data.model_dump().values()):
+            raise ValueError("All update fields are None.")
+        return data
