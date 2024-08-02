@@ -15,10 +15,13 @@ from datastore.db.query import (
     get_board_by_id,
     get_category_by_id,
     get_comment_by_id,
+    get_comment_vote_tallies,
     get_comment_votes,
     get_event_by_id,
+    get_event_vote_tallies,
     get_event_votes,
     get_post_by_id,
+    get_post_vote_tallies,
     get_post_votes,
     get_user_by_id,
     get_user_by_name,
@@ -43,6 +46,8 @@ from datastore.entities.models import (
     UserProfileRead,
     UserRead,
 )
+
+from .schemas import VoteTally
 
 router = APIRouter()
 
@@ -321,3 +326,39 @@ async def get_event_votes_endpoint(event_id: str):
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
     return votes
+
+
+@router.get("/votes/post/{post_id}", response_model=VoteTally)
+async def get_post_votes_tally(post_id: str):
+    try:
+        tally = await get_post_vote_tallies(post_id)
+    except Exception as e:
+        logger.error(f"Ask Thades what happened I guess. {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Server go boom. :sad-emoji:"
+        ) from e
+    return tally
+
+
+@router.get("/votes/comment/{comment_id}", response_model=VoteTally)
+async def get_comment_votes_tally(comment_id: str):
+    try:
+        tally = await get_comment_vote_tallies(comment_id)
+    except Exception as e:
+        logger.error(f"Ask Thades what happened I guess. {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Server go boom. :sad-emoji:"
+        ) from e
+    return tally
+
+
+@router.get("/votes/event/{event_id}", response_model=VoteTally)
+async def get_event_votes_tally(event_id: str):
+    try:
+        tally = await get_event_vote_tallies(event_id)
+    except Exception as e:
+        logger.error(f"Ask Thades what happened I guess. {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Server go boom. :sad-emoji:"
+        ) from e
+    return tally

@@ -37,6 +37,7 @@ from datastore.entities.models import (
     UserProfileCreate,
     UserProfileRead,
     UserRead,
+    VoteType,
 )
 
 from .db import async_session
@@ -46,10 +47,6 @@ logger = logging.getLogger(__name__)
 
 # NOTE Yes, I tried generics with this for my first time; it blew up spectacularly. Will play
 # more with it later.
-
-
-class DSQueryError(Exception):
-    pass
 
 
 async def create_user(user_create: UserCreate) -> UserRead:
@@ -266,3 +263,54 @@ async def get_event_votes(event_id: str) -> list[EventVoteRead]:
             result = (await session.execute(query)).scalars().all()
             votes = [EventVoteRead.model_validate(vote) for vote in result]
     return votes
+
+
+async def get_post_vote_tallies(post_id: str) -> dict[str, int]:
+    async with async_session() as session:
+        async with session.begin():
+            query = select(PostVote).where(PostVote.post_id == post_id)
+            result = (await session.execute(query)).scalars().all()
+
+    total_votes = len(result)
+    total_up_votes = sum(1 for vote in result if vote.vote == VoteType.UP)
+    total_down_votes = sum(1 for vote in result if vote.vote == VoteType.DOWN)
+
+    return {
+        "total_votes": total_votes,
+        "total_up_votes": total_up_votes,
+        "total_down_votes": total_down_votes,
+    }
+
+
+async def get_comment_vote_tallies(comment_id: str) -> dict[str, int]:
+    async with async_session() as session:
+        async with session.begin():
+            query = select(CommentVote).where(CommentVote.comment_id == comment_id)
+            result = (await session.execute(query)).scalars().all()
+
+    total_votes = len(result)
+    total_up_votes = sum(1 for vote in result if vote.vote == VoteType.UP)
+    total_down_votes = sum(1 for vote in result if vote.vote == VoteType.DOWN)
+
+    return {
+        "total_votes": total_votes,
+        "total_up_votes": total_up_votes,
+        "total_down_votes": total_down_votes,
+    }
+
+
+async def get_event_vote_tallies(event_id: str) -> dict[str, int]:
+    async with async_session() as session:
+        async with session.begin():
+            query = select(EventVote).where(EventVote.event_id == event_id)
+            result = (await session.execute(query)).scalars().all()
+
+    total_votes = len(result)
+    total_up_votes = sum(1 for vote in result if vote.vote == VoteType.UP)
+    total_down_votes = sum(1 for vote in result if vote.vote == VoteType.DOWN)
+
+    return {
+        "total_votes": total_votes,
+        "total_up_votes": total_up_votes,
+        "total_down_votes": total_down_votes,
+    }
