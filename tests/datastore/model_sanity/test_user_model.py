@@ -3,7 +3,7 @@ from sqlmodel import select
 
 from datastore.entities.models import User, UserCreate, UserRead
 
-MOCK_USER_API_REQUEST = {"name": "beeeeegHootie"}
+MOCK_USER_API_REQUEST = {"name": "beeeeeghootie", "email": "beeghootie@email.net"}
 
 
 @pytest.mark.asyncio

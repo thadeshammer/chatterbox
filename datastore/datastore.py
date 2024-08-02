@@ -6,7 +6,10 @@ from typing import AsyncGenerator
 
 from fastapi import FastAPI
 
-from datastore.entities.models import (  # pylint: disable=unused-import
+from .api import router
+from .config import Config
+from .db import async_create_all_tables
+from .entities.models import (  # pylint: disable=unused-import
     Board,
     Category,
     Comment,
@@ -18,9 +21,6 @@ from datastore.entities.models import (  # pylint: disable=unused-import
     User,
     UserProfile,
 )
-
-from .config import Config
-from .db import async_create_all_tables
 from .utils import setup_logging
 
 CERT_FILE_PATH = os.getenv("CERT_FILE_PATH")
@@ -60,10 +60,7 @@ async def lifespan(
 def create_app() -> FastAPI:
     fastapi_app = FastAPI(lifespan=lifespan)
     fastapi_app.debug = False
-
-    # TODO create and setup basic router
-    # fastapi_app.include_router(router)
-
+    fastapi_app.include_router(router)
     return fastapi_app
 
 

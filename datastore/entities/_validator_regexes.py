@@ -7,6 +7,7 @@ APP_UUID4_REGEX = (
     r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
 )
 LANGUAGE_CODE_REGEX = r"^[a-z]{2}$"
+LOGIN_NAME_REGEX = r"^[a-z0-9_]{1,25}$"
 
 
 def matches_regex(value: Any, pattern: str) -> str:

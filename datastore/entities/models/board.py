@@ -11,25 +11,24 @@ if TYPE_CHECKING:
     from . import Category, Event, User
 
 
-class BoardBase(SQLModel, table=False):
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
-    title: str = Field(nullable=False, min_length=10, max_length=150)
-    description: str = Field(nullable=False, min_length=10, max_length=500)
-
-    locked: bool = Field(default=False)
-    locked_at: Optional[datetime] = Field(default=None)
-    deleted: bool = Field(default=False)
-    deleted_at: Optional[datetime] = Field(default=None)
-
+class BoardCreate(SQLModel):
+    name: str = Field(..., nullable=False, min_length=3, max_length=150)
+    description: str = Field(..., nullable=False, min_length=5, max_length=500)
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
 
     model_config = cast(
         SQLModelConfig,
         {
-            "arbitrary_types_allowed": "True",
             "populate_by_name": "True",
         },
     )
+
+
+class BoardBase(BoardCreate):
+    locked: bool = Field(default=False)
+    locked_at: Optional[datetime] = Field(default=None)
+    deleted: bool = Field(default=False)
+    deleted_at: Optional[datetime] = Field(default=None)
 
 
 class Board(BoardBase, table=True):
@@ -38,6 +37,7 @@ class Board(BoardBase, table=True):
     id: str = Field(
         default_factory=lambda: make_entity_id(EntityPrefix.BOARD), primary_key=True
     )
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
     user: "User" = Relationship(
         back_populates="boards", sa_relationship_kwargs={"lazy": "subquery"}
@@ -50,9 +50,6 @@ class Board(BoardBase, table=True):
     )
 
 
-class BoardCreate(BoardBase):
-    pass
-
-
 class BoardRead(BoardBase):
     id: str = Field(primary_key=True)
+    created_at: datetime = Field()

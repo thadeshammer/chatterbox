@@ -4,12 +4,12 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel, inspect, select
 
-from datastore.db import get_db
+from datastore.db import async_session
 
 
 async def upsert_one(db_model: SQLModel, session: Optional[AsyncSession] = None):
     if session is None:
-        async with get_db() as session:
+        async with async_session() as session:
             await _upsert(db_model, session)
     else:
         await _upsert(db_model, session)

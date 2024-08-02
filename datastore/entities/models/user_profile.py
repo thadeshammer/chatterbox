@@ -11,25 +11,22 @@ if TYPE_CHECKING:
     from . import User
 
 
-class UserProfileBase(SQLModel):
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
-
+class UserProfileCreate(SQLModel):
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
 
-    # user: "User" = Relationship(
-    #     back_populates="user_profile", sa_relationship_kwargs={"lazy": "subquery"}
-    # )
-
-    # birthday: Optional[date] = Field(default=None, nullable=True)
+    birthday: Optional[date] = Field(default=None, nullable=True)
     # TODO more profile stuff
 
     model_config = cast(
         SQLModelConfig,
         {
-            "arbitrary_types_allowed": "True",
             "populate_by_name": "True",
         },
     )
+
+
+class UserProfileBase(UserProfileCreate):
+    pass
 
 
 class UserProfile(UserProfileBase, table=True):
@@ -41,11 +38,13 @@ class UserProfile(UserProfileBase, table=True):
         default_factory=lambda: make_entity_id(EntityPrefix.USERPROFILE),
         primary_key=True,
     )
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
-
-class UserProfileCreate(UserProfileBase):
-    pass
+    user: "User" = Relationship(
+        back_populates="user_profile", sa_relationship_kwargs={"lazy": "subquery"}
+    )
 
 
 class UserProfileRead(UserProfileBase):
     id: str = Field(primary_key=True)
+    created_at: datetime = Field()

@@ -1,5 +1,4 @@
 import pytest
-from sqlalchemy.orm import joinedload
 from sqlmodel import select
 
 from datastore.entities.models import (
@@ -9,7 +8,6 @@ from datastore.entities.models import (
     CategoryCreate,
     Comment,
     CommentCreate,
-    CommentRead,
     Post,
     PostCreate,
     User,
@@ -17,22 +15,23 @@ from datastore.entities.models import (
     UserRead,
 )
 
-MOCK_CREATE_USER_REQUEST = {"name": "beeeeegHootie"}
+MOCK_CREATE_USER_REQUEST = {"name": "beeeeeghootie", "email": "beeghootie@email.net"}
 
 # NOTE These requests will come with a user id in their payload typically.
 
+# pylint: disable=too-many-locals
 MOCK_CREATE_BOARD_REQUEST = {
-    "title": "Super Cool Hangout Space",
+    "name": "Super Cool Hangout Space",
     "description": "it's in the name, yo",
 }
 
 MOCK_CREATE_CATEGORY_REQUEST = {
-    "title": "General Chat",
+    "name": "General Chat",
     "description": "a place to talk about cool stuff.",
 }
 
 MOCK_CREATE_POST_REQUEST = {
-    "title": "today's topic is cats!",
+    "name": "today's topic is cats!",
     "content": "You know me, fam, I really just love cats even tho they are dumb.",
 }
 
