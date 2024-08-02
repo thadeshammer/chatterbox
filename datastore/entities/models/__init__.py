@@ -1,7 +1,7 @@
 # datastore/entities/__init__.py
 
 from .board import Board, BoardCreate, BoardRead, BoardUpdate
-from .category import Category, CategoryCreate, CategoryRead
+from .category import Category, CategoryCreate, CategoryRead, CategoryUpdate
 from .comment import Comment, CommentCreate, CommentRead
 from .event import Event, EventCreate, EventRead
 from .post import Post, PostCreate, PostRead
@@ -28,6 +28,7 @@ __all__ = [
     "Category",
     "CategoryCreate",
     "CategoryRead",
+    "CategoryUpdate",
     "Comment",
     "CommentCreate",
     "CommentRead",

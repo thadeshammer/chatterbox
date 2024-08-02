@@ -14,6 +14,7 @@ from datastore.entities.models import (
     Category,
     CategoryCreate,
     CategoryRead,
+    CategoryUpdate,
     Comment,
     CommentCreate,
     CommentRead,
@@ -146,6 +147,26 @@ async def update_board(board_id: str, board_update: BoardUpdate) -> BoardRead:
         await session.commit()
         await session.refresh(board_data)
         response = BoardRead.model_validate(board_data)
+    return response
+
+
+async def update_category(
+    category_id: str, category_update: CategoryUpdate
+) -> CategoryRead:
+    async with async_session() as session:
+        statement = select(Category).where(Category.id == category_id)
+        result = await session.execute(statement)
+        category_data = result.scalar_one_or_none()
+
+        if not category_data:
+            raise ValueError(f"Category with id {category_id} does not exist")
+
+        for key, value in category_update.model_dump(exclude_unset=True).items():
+            setattr(category_data, key, value)
+
+        await session.commit()
+        await session.refresh(category_data)
+        response = CategoryRead.model_validate(category_data)
     return response
 
 

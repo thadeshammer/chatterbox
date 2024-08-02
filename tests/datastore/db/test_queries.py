@@ -17,6 +17,7 @@ from datastore.db.query import (
     get_post_by_id,
     get_user_profile_by_id,
     update_board,
+    update_category,
     update_user,
 )
 from datastore.entities.models import (
@@ -25,6 +26,7 @@ from datastore.entities.models import (
     BoardUpdate,
     CategoryCreate,
     CategoryRead,
+    CategoryUpdate,
     CommentCreate,
     CommentRead,
     EventCreate,
@@ -96,25 +98,32 @@ async def test_create_and_update_board(
 
 
 @pytest.mark.asyncio
-async def test_create_category(async_session):  # pylint: disable=unused-argument
+async def test_create_and_update_category(
+    async_session,
+):  # pylint: disable=unused-argument
     user_create = UserCreate(name="test_name", email="testemail@example.com")
     user_read: UserRead = await create_user(user_create)
 
     board_create = BoardCreate(
-        name="test_name",
+        name="test name",
         description="describing things",
         user_id=user_read.id,
     )
     board_read: BoardRead = await create_board(board_create)
 
     category_create = CategoryCreate(
-        name="test_name",
+        name="test category name",
         description="describing things",
         user_id=user_read.id,
         board_id=board_read.id,
     )
     category_read: CategoryRead = await create_category(category_create)
     assert category_read.name == category_create.name
+
+    category_update = CategoryUpdate(name="new category name")
+    updated = await update_category(category_read.id, category_update)
+
+    assert updated.name == "new category name"
 
 
 @pytest.mark.asyncio
