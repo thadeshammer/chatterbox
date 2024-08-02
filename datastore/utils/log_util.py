@@ -4,6 +4,8 @@ from typing import Union
 
 import yaml
 
+from datastore.config import Config
+
 
 class CustomFormatter(logging.Formatter):
     def format(self, record):
@@ -25,9 +27,9 @@ def _extract_filenames_from_logger_config(logger_config: dict) -> list:
     return filenames
 
 
-def setup_logging(loggin_config_yaml_filepath: str) -> None:
-    if os.path.exists(loggin_config_yaml_filepath):
-        with open(loggin_config_yaml_filepath, "rt", encoding="UTF8") as config_file:
+def setup_logging(log_cfg_yaml_filepath: str) -> None:
+    if os.path.exists(log_cfg_yaml_filepath):
+        with open(log_cfg_yaml_filepath, "rt", encoding="UTF8") as config_file:
             config: Union[list, dict, None] = yaml.safe_load(config_file.read())
             if not isinstance(config, dict):
                 raise TypeError(f"logging config is {type(config)} but needs be dict.")
@@ -35,7 +37,7 @@ def setup_logging(loggin_config_yaml_filepath: str) -> None:
                 logging.config.dictConfig(config)
             except Exception as e:
                 print(
-                    f"Found but failed to load config from {loggin_config_yaml_filepath}: {str(e)}"
+                    f"Found but failed to load config from {log_cfg_yaml_filepath}: {str(e)}"
                 )
                 raise
 

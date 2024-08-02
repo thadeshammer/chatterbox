@@ -25,5 +25,5 @@ async def test_create_and_read_user(async_session):
     assert result.name == user_data.name
     assert result.id == user_data.id
 
-    user_read = UserRead(**result.model_dump())
+    user_read = UserRead.model_validate(result)
     assert user_read.name == MOCK_USER_API_REQUEST["name"]
