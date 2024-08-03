@@ -12,6 +12,7 @@ from .api import (
     comment_routes,
     event_routes,
     post_routes,
+    server_routes,
     user_routes,
 )
 from .config import Config
@@ -74,6 +75,7 @@ def create_app() -> FastAPI:
     fastapi_app.include_router(event_routes, prefix="/event")
     fastapi_app.include_router(post_routes, prefix="/post")
     fastapi_app.include_router(user_routes, prefix="/user")
+    fastapi_app.include_router(server_routes)
 
     return fastapi_app
 
