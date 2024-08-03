@@ -1,11 +1,11 @@
 # datastore/entities/__init__.py
 
-from .board import Board, BoardCreate, BoardRead
-from .category import Category, CategoryCreate, CategoryRead
+from .board import Board, BoardCreate, BoardRead, BoardUpdate
+from .category import Category, CategoryCreate, CategoryRead, CategoryUpdate
 from .comment import Comment, CommentCreate, CommentRead
 from .event import Event, EventCreate, EventRead
 from .post import Post, PostCreate, PostRead
-from .user import User, UserCreate, UserRead
+from .user import User, UserCreate, UserRead, UserUpdate
 from .user_profile import UserProfile, UserProfileCreate, UserProfileRead
 from .votes import (
     CommentVote,
@@ -24,9 +24,11 @@ __all__ = [
     "Board",
     "BoardCreate",
     "BoardRead",
+    "BoardUpdate",
     "Category",
     "CategoryCreate",
     "CategoryRead",
+    "CategoryUpdate",
     "Comment",
     "CommentCreate",
     "CommentRead",
@@ -44,6 +46,7 @@ __all__ = [
     "PostVoteRead",
     "User",
     "UserCreate",
+    "UserUpdate",
     "UserProfile",
     "UserProfileCreate",
     "UserProfileRead",

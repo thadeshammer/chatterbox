@@ -1,26 +1,8 @@
 import logging
-from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 from pydantic import ValidationError
 
-from datastore.db.query import (
-    create_board,
-    create_category,
-    create_comment,
-    create_event,
-    create_post,
-    create_user,
-    create_user_profile,
-    get_board_by_id,
-    get_category_by_id,
-    get_comment_by_id,
-    get_event_by_id,
-    get_post_by_id,
-    get_user_by_id,
-    get_user_by_name,
-    get_user_profile_by_id,
-)
 from datastore.entities.models import (
     BoardCreate,
     BoardRead,
@@ -36,6 +18,23 @@ from datastore.entities.models import (
     UserProfileCreate,
     UserProfileRead,
     UserRead,
+)
+from datastore.queries import (
+    create_board,
+    create_category,
+    create_comment,
+    create_event,
+    create_post,
+    create_user,
+    create_user_profile,
+    get_board_by_id,
+    get_category_by_id,
+    get_comment_by_id,
+    get_event_by_id,
+    get_post_by_id,
+    get_user_by_id,
+    get_user_by_name,
+    get_user_profile_by_id,
 )
 
 router = APIRouter()
@@ -69,32 +68,6 @@ async def create_board_endpoint(board: BoardCreate):
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
     return board_read
-
-
-@router.get("/get/user/", response_model=UserRead)
-async def get_user(
-    user_id: Optional[str] = Query(None), user_name: Optional[str] = Query(None)
-) -> UserRead:
-    try:
-        if user_id is not None:
-            user = await get_user_by_id(user_id)
-        elif user_name is not None:
-            user = await get_user_by_name(user_name)
-        else:
-            raise HTTPException(
-                status_code=400, detail="Either user_id or user_name must be provided"
-            )
-
-        if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-    except ValidationError as e:
-        logger.error(f"Failed validation: {str(e)}")
-        raise HTTPException(status_code=400, detail="Failed validation.") from e
-    except Exception as e:
-        logger.error(f"Ask Thades what happened I guess. {str(e)}")
-        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
-
-    return user
 
 
 @router.post("/create/category/", response_model=CategoryRead)
@@ -167,8 +140,40 @@ async def create_user_profile_endpoint(user_profile: UserProfileCreate):
     return user_profile_read
 
 
+@router.get("/get/user/id/{id}", response_model=UserRead)
+async def get_user_by_id_endpoint(user_id: str) -> UserRead:
+    try:
+        user = await get_user_by_id(user_id)
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+    except ValidationError as e:
+        logger.error(f"Failed validation: {str(e)}")
+        raise HTTPException(status_code=400, detail="Failed validation.") from e
+    except Exception as e:
+        logger.error(f"Ask Thades what happened I guess. {str(e)}")
+        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
+
+    return user
+
+
+@router.get("/get/user/name/{name}", response_model=UserRead)
+async def get_user_by_name_endpoint(user_name: str) -> UserRead:
+    try:
+        user = await get_user_by_name(user_name)
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+    except ValidationError as e:
+        logger.error(f"Failed validation: {str(e)}")
+        raise HTTPException(status_code=400, detail="Failed validation.") from e
+    except Exception as e:
+        logger.error(f"Ask Thades what happened I guess. {str(e)}")
+        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
+
+    return user
+
+
 @router.get("/get/board/{board_id}", response_model=BoardRead)
-async def get_board(board_id: str) -> BoardRead:
+async def get_board_endpoint(board_id: str) -> BoardRead:
     try:
         board = await get_board_by_id(board_id)
         if board is None:
@@ -184,7 +189,7 @@ async def get_board(board_id: str) -> BoardRead:
 
 
 @router.get("/get/category/{category_id}", response_model=CategoryRead)
-async def get_category(category_id: str) -> CategoryRead:
+async def get_category_endpoint(category_id: str) -> CategoryRead:
     try:
         category = await get_category_by_id(category_id)
         if category is None:
@@ -200,7 +205,7 @@ async def get_category(category_id: str) -> CategoryRead:
 
 
 @router.get("/get/comment/{comment_id}", response_model=CommentRead)
-async def get_comment(comment_id: str) -> CommentRead:
+async def get_comment_endpoint(comment_id: str) -> CommentRead:
     try:
         comment = await get_comment_by_id(comment_id)
         if comment is None:
@@ -216,7 +221,7 @@ async def get_comment(comment_id: str) -> CommentRead:
 
 
 @router.get("/get/event/{event_id}", response_model=EventRead)
-async def get_event(event_id: str) -> EventRead:
+async def get_event_endpoint(event_id: str) -> EventRead:
     try:
         event = await get_event_by_id(event_id)
         if event is None:
@@ -232,7 +237,7 @@ async def get_event(event_id: str) -> EventRead:
 
 
 @router.get("/get/post/{post_id}", response_model=PostRead)
-async def get_post(post_id: str) -> PostRead:
+async def get_post_endpoint(post_id: str) -> PostRead:
     try:
         post = await get_post_by_id(post_id)
         if post is None:
@@ -248,7 +253,7 @@ async def get_post(post_id: str) -> PostRead:
 
 
 @router.get("/get/user_profile/{user_profile_id}", response_model=UserProfileRead)
-async def get_user_profile(user_profile_id: str) -> UserProfileRead:
+async def get_user_profile_endpoint(user_profile_id: str) -> UserProfileRead:
     try:
         user_profile = await get_user_profile_by_id(user_profile_id)
         if user_profile is None:
