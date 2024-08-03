@@ -27,7 +27,7 @@ from datastore.queries import (
 )
 
 
-async def test_get_categories_by_board_id():
+async def test_get_categories_by_board_id(async_session):
     user_create = UserCreate(name="test_name", email="testemail@example.com")
     user_read: UserRead = await create_user(user_create)
 
@@ -60,7 +60,7 @@ async def test_get_categories_by_board_id():
     assert "test2" in names
 
 
-async def test_get_boards_created_by_user_id():
+async def test_get_boards_created_by_user_id(async_session):
     user_create = UserCreate(name="test_name", email="testemail@example.com")
     user: UserRead = await create_user(user_create)
 

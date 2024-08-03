@@ -48,7 +48,7 @@ class Post(PostBase, table=True):
     category: "Category" = Relationship(
         back_populates="posts", sa_relationship_kwargs={"lazy": "subquery"}
     )
-    comments: "Comment" = Relationship(
+    comments: list["Comment"] = Relationship(
         back_populates="post", sa_relationship_kwargs={"lazy": "subquery"}
     )
     votes: list["PostVote"] = Relationship(

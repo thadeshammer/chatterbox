@@ -32,7 +32,7 @@ async def get_comment_endpoint(comment_id: str) -> CommentRead:
     return comment
 
 
-@comment_routes.get("/{comment_id}", response_model=list[CommentRead])
+@comment_routes.get("/user/{user_id}", response_model=list[CommentRead])
 async def get_comments_by_user_id_endpoint(user_id: str) -> list[CommentRead]:
     try:
         comments = await get_comments_by_user_id(user_id)
@@ -48,7 +48,7 @@ async def get_comments_by_user_id_endpoint(user_id: str) -> list[CommentRead]:
     return comments
 
 
-@comment_routes.get("/{comment_id}", response_model=list[CommentRead])
+@comment_routes.get("/post/{post_id}", response_model=list[CommentRead])
 async def get_comments_by_post_id_endpoint(post_id: str) -> list[CommentRead]:
     try:
         comments = await get_comments_by_post_id(post_id)

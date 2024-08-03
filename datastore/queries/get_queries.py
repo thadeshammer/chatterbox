@@ -123,11 +123,27 @@ async def get_event_by_id(event_id: str) -> Optional[EventRead]:
     return response
 
 
+async def get_events_by_board_id(board_id: str) -> list[EventRead]:
+    async with async_session() as session:
+        query = select(Event).where(Event.board_id == board_id)
+        results: list[Event] = (await session.execute(query)).unique().scalars().all()
+        response = [EventRead.model_validate(result) for result in results]
+    return response
+
+
 async def get_post_by_id(post_id: str) -> Optional[PostRead]:
     async with async_session() as session:
         query = select(Post).where(Post.id == post_id)
         result: Post = (await session.execute(query)).unique().scalar_one_or_none()
         response = PostRead.model_validate(result) if result is not None else None
+    return response
+
+
+async def get_posts_by_category_id(category_id: str) -> list[PostRead]:
+    async with async_session() as session:
+        query = select(Post).where(Post.category_id == category_id)
+        results: list[Post] = (await session.execute(query)).unique().scalars().all()
+        response = [PostRead.model_validate(result) for result in results]
     return response
 
 
