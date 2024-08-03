@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { useBoardStore } from '../stores/board'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -10,6 +11,8 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     signOut() {
+      const boardStore = useBoardStore()
+      boardStore.clear()
       this.user = null
     }
   },

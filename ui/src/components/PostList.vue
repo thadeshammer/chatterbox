@@ -3,7 +3,7 @@
     <q-list bordered class="rounded-borders">
       <q-item-label header>{{ category.name }}</q-item-label>
 
-      <q-item clickable v-ripple v-for="post in category.posts">
+      <q-item clickable v-ripple v-for="post in category.posts" @click="postNav(post)">
         <q-item-section avatar>
           <q-avatar>
             <img src="https://cdn.quasar.dev/img/avatar2.jpg">
@@ -29,9 +29,17 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useBoardStore } from '../stores/board'
+
+const router = useRouter()
+
 const boardStore = useBoardStore()
 const route = useRoute()
 const category = computed(() => { return boardStore.categoryById(route.params.category)} )
+
+function postNav(post) {
+  var path = { path: '/category/' + this.category.id + '/' + post.id + "/post/" + post.urlEscaped }
+  router.push(path)
+}
 </script>
