@@ -6,7 +6,14 @@ from typing import AsyncGenerator
 
 from fastapi import FastAPI
 
-from .api import router
+from .api import (
+    board_routes,
+    category_routes,
+    comment_routes,
+    event_routes,
+    post_routes,
+    user_routes,
+)
 from .config import Config
 from .db import async_create_all_tables
 from .entities.models import (  # pylint: disable=unused-import
@@ -60,7 +67,14 @@ async def lifespan(
 def create_app() -> FastAPI:
     fastapi_app = FastAPI(lifespan=lifespan)
     fastapi_app.debug = False
-    fastapi_app.include_router(router)
+
+    fastapi_app.include_router(board_routes, prefix="/board")
+    fastapi_app.include_router(category_routes, prefix="/category")
+    fastapi_app.include_router(comment_routes, prefix="/comment")
+    fastapi_app.include_router(event_routes, prefix="/event")
+    fastapi_app.include_router(post_routes, prefix="/post")
+    fastapi_app.include_router(user_routes, prefix="/user")
+
     return fastapi_app
 
 
