@@ -53,9 +53,6 @@ class UserCreate(SQLModel):
 
 
 class UserBase(UserCreate):
-    # this makes the relationship two directional; we can just query vs user-profile table to see
-    # if a table exists
-    # user_profile_id: Optional[str] = Field(default=None, nullable=True)
     pass
 
 
@@ -68,6 +65,9 @@ class User(UserBase, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
     boards: list["Board"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
+    )
+    memberships: list["Membership"] = Relationship(
         back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
     )
     categories: list["Category"] = Relationship(

@@ -49,6 +49,9 @@ class Board(BoardBase, table=True):
     events: list["Event"] = Relationship(
         back_populates="board", sa_relationship_kwargs={"lazy": "subquery"}
     )
+    members: list["Membership"] = Relationship(
+        back_populates="board", sa_relationship_kwargs={"lazy": "subquery"}
+    )
 
 
 class BoardRead(BoardBase):

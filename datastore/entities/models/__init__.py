@@ -4,6 +4,7 @@ from .board import Board, BoardCreate, BoardRead, BoardUpdate
 from .category import Category, CategoryCreate, CategoryRead, CategoryUpdate
 from .comment import Comment, CommentCreate, CommentRead
 from .event import Event, EventCreate, EventRead
+from .membership import Membership, MembershipCreate, MembershipRead
 from .post import Post, PostCreate, PostRead
 from .user import User, UserCreate, UserRead, UserUpdate
 from .user_profile import UserProfile, UserProfileCreate, UserProfileRead
@@ -38,6 +39,9 @@ __all__ = [
     "EventVote",
     "EventVoteCreate",
     "EventVoteRead",
+    "Membership",
+    "MembershipCreate",
+    "MembershipRead",
     "Post",
     "PostCreate",
     "PostRead",

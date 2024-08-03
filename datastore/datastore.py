@@ -11,6 +11,7 @@ from .api import (
     category_routes,
     comment_routes,
     event_routes,
+    membership_routes,
     post_routes,
     server_routes,
     user_routes,
@@ -73,6 +74,7 @@ def create_app() -> FastAPI:
     fastapi_app.include_router(category_routes, prefix="/category")
     fastapi_app.include_router(comment_routes, prefix="/comment")
     fastapi_app.include_router(event_routes, prefix="/event")
+    fastapi_app.include_router(membership_routes, prefix="/membership")
     fastapi_app.include_router(post_routes, prefix="/post")
     fastapi_app.include_router(user_routes, prefix="/user")
     fastapi_app.include_router(server_routes)

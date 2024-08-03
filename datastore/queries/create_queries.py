@@ -1,8 +1,3 @@
-import logging
-from typing import Optional
-
-from sqlmodel import select
-
 # TODO remove this pylint disable after initial dev push
 # pylint: disable=unused-import
 from datastore.db import async_session
@@ -21,6 +16,9 @@ from datastore.entities.models import (
     Event,
     EventCreate,
     EventRead,
+    Membership,
+    MembershipCreate,
+    MembershipRead,
     Post,
     PostCreate,
     PostRead,
@@ -51,6 +49,16 @@ async def create_board(board_create: BoardCreate) -> BoardRead:
         await session.commit()
         await session.refresh(board_data)
         response = BoardRead.model_validate(board_data)
+    return response
+
+
+async def create_membership(membership_create: MembershipCreate) -> MembershipRead:
+    async with async_session() as session:
+        membership_data = Membership(**membership_create.model_dump())
+        session.add(membership_data)
+        await session.commit()
+        await session.refresh(membership_data)
+        response = MembershipRead.model_validate(membership_data)
     return response
 
 

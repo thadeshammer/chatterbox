@@ -20,6 +20,9 @@ from datastore.entities.models import (
     Event,
     EventCreate,
     EventRead,
+    Membership,
+    MembershipCreate,
+    MembershipRead,
     Post,
     PostCreate,
     PostRead,
@@ -156,4 +159,24 @@ async def get_user_profile_by_id(user_profile_id: str) -> Optional[UserProfileRe
         response = (
             UserProfileRead.model_validate(result) if result is not None else None
         )
+    return response
+
+
+async def get_memberships_by_board_id(board_id: str) -> list[MembershipRead]:
+    async with async_session() as session:
+        query = select(Membership).where(Membership.board_id == board_id)
+        results: list[Membership] = (
+            (await session.execute(query)).unique().scalars().all()
+        )
+        response = [MembershipRead.model_validate(result) for result in results]
+    return response
+
+
+async def get_memberships_by_user_id(user_id: str) -> list[MembershipRead]:
+    async with async_session() as session:
+        query = select(Membership).where(Membership.user_id == user_id)
+        results: list[Membership] = (
+            (await session.execute(query)).unique().scalars().all()
+        )
+        response = [MembershipRead.model_validate(result) for result in results]
     return response

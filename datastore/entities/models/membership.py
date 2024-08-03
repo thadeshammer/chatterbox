@@ -48,7 +48,7 @@ class Membership(MembershipBase, table=True):
         back_populates="memberships", sa_relationship_kwargs={"lazy": "subquery"}
     )
     board: "Board" = Relationship(
-        back_populates="memberships", sa_relationship_kwargs={"lazy": "subquery"}
+        back_populates="members", sa_relationship_kwargs={"lazy": "subquery"}
     )
 
 
