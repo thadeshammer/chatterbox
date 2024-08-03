@@ -57,9 +57,20 @@ async def get_board_by_id(board_id: str) -> Optional[BoardRead]:
     return response
 
 
-async def get_boards_by_user_id(user_id: str) -> list[BoardRead]:
-    # TODO need Membership table
-    pass
+async def get_all_boards() -> list[BoardRead]:
+    async with async_session() as session:
+        query = select(Board)
+        results: list[Board] = (await session.execute(query)).unique().scalars().all()
+        response = [BoardRead.model_validate(result) for result in results]
+    return response
+
+
+async def get_boards_created_by_user_id(user_id: str) -> list[BoardRead]:
+    async with async_session() as session:
+        query = select(Board).where(Board.user_id == user_id)
+        results: Board = (await session.execute(query)).unique().scalars().all()
+        response = [BoardRead.model_validate(result) for result in results]
+    return response
 
 
 async def get_category_by_id(category_id: str) -> Optional[CategoryRead]:

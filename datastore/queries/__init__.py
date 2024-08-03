@@ -8,7 +8,9 @@ from .create_queries import (
     create_user_profile,
 )
 from .get_queries import (
+    get_all_boards,
     get_board_by_id,
+    get_boards_created_by_user_id,
     get_categories_by_board_id,
     get_category_by_id,
     get_comment_by_id,
@@ -28,7 +30,9 @@ __all__ = [
     "create_post",
     "create_user",
     "create_user_profile",
+    "get_all_boards",
     "get_board_by_id",
+    "get_boards_created_by_user_id",
     "get_category_by_id",
     "get_categories_by_board_id",
     "get_comment_by_id",
