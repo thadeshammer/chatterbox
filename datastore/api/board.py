@@ -29,6 +29,11 @@ async def get_board_endpoint(board_id: str) -> BoardRead:
     return board
 
 
+@board_routes.get("/user/{user_id}", response_model=list[BoardRead])
+async def get_boards_by_user_id_endpoint(user_id: str) -> list[BoardRead]:
+    pass
+
+
 @board_routes.post("/", response_model=BoardRead)
 async def create_board_endpoint(board: BoardCreate):
     try:

@@ -12,6 +12,8 @@ class EntityPrefix(StrEnum):
     EDIT = "edit"
     EVENT = "event"
     EVENTVOTE = "eventvote"
+    INVITE = "invite"
+    MEMBERSHIP = "membership"
     PIN = "pin"
     POST = "post"
     POSTVOTE = "postvote"

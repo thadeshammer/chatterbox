@@ -57,11 +57,26 @@ async def get_board_by_id(board_id: str) -> Optional[BoardRead]:
     return response
 
 
+async def get_boards_by_user_id(user_id: str) -> list[BoardRead]:
+    # TODO need Membership table
+    pass
+
+
 async def get_category_by_id(category_id: str) -> Optional[CategoryRead]:
     async with async_session() as session:
         query = select(Category).where(Category.id == category_id)
         result: Category = (await session.execute(query)).unique().scalar_one_or_none()
         response = CategoryRead.model_validate(result) if result is not None else None
+    return response
+
+
+async def get_categories_by_board_id(board_id: str) -> list[CategoryRead]:
+    async with async_session() as session:
+        query = select(Category).where(Category.board_id == board_id)
+        results: list[Category] = (
+            (await session.execute(query)).unique().scalars().all()
+        )
+        response = [CategoryRead.model_validate(result) for result in results]
     return response
 
 
