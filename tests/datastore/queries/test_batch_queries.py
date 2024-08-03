@@ -7,15 +7,23 @@ from datastore.entities.models import (
     BoardRead,
     CategoryCreate,
     CategoryRead,
+    CommentCreate,
+    CommentRead,
+    PostCreate,
+    PostRead,
     UserCreate,
     UserRead,
 )
 from datastore.queries import (
     create_board,
     create_category,
+    create_comment,
+    create_post,
     create_user,
     get_boards_created_by_user_id,
     get_categories_by_board_id,
+    get_comments_by_post_id,
+    get_comments_by_user_id,
 )
 
 
@@ -78,3 +86,62 @@ async def test_get_boards_created_by_user_id():
 
     assert "one" in names
     assert "two" in names
+
+
+@pytest.mark.asyncio
+async def test_get_comments_by_post_id_and_user_id(
+    async_session,
+):  # pylint: disable=unused-argument
+    user_create = UserCreate(name="test_name", email="testemail@example.com")
+    user_read: UserRead = await create_user(user_create)
+
+    board_create = BoardCreate(
+        name="test_name",
+        description="describing things",
+        user_id=user_read.id,
+    )
+    board_read: BoardRead = await create_board(board_create)
+
+    category_create = CategoryCreate(
+        name="test_name",
+        description="describing things",
+        user_id=user_read.id,
+        board_id=board_read.id,
+    )
+    category_read: CategoryRead = await create_category(category_create)
+
+    post_create = PostCreate(
+        name="test_name",
+        content="blerp bleep bloop lorum ipsum whatevs",
+        user_id=user_read.id,
+        category_id=category_read.id,
+    )
+    post_read: PostRead = await create_post(post_create)
+
+    comment_create1 = CommentCreate(
+        content="First comment",
+        user_id=user_read.id,
+        post_id=post_read.id,
+    )
+    comment_read1: CommentRead = await create_comment(comment_create1)
+
+    comment_create2 = CommentCreate(
+        content="Second comment",
+        user_id=user_read.id,
+        post_id=post_read.id,
+    )
+    comment_read2: CommentRead = await create_comment(comment_create2)
+
+    comments = await get_comments_by_post_id(post_read.id)
+    assert len(comments) == 2
+    contents = [comment.content for comment in comments]
+    assert "First comment" in contents
+    assert "Second comment" in contents
+    # assert comments[0].content == "First comment"
+    # assert comments[1].content == "Second comment"
+
+    users_comments = await get_comments_by_user_id(user_read.id)
+    assert len(users_comments) == 2
+    users_contents = [comment.content for comment in users_comments]
+    assert "First comment" in users_contents
+    assert "Second comment" in users_contents

@@ -91,6 +91,22 @@ async def get_categories_by_board_id(board_id: str) -> list[CategoryRead]:
     return response
 
 
+async def get_comments_by_post_id(post_id: str) -> list[CommentRead]:
+    async with async_session() as session:
+        query = select(Comment).where(Comment.post_id == post_id)
+        results: list[Comment] = (await session.execute(query)).unique().scalars().all()
+        response = [CommentRead.model_validate(result) for result in results]
+    return response
+
+
+async def get_comments_by_user_id(user_id: str) -> list[CommentRead]:
+    async with async_session() as session:
+        query = select(Comment).where(Comment.user_id == user_id)
+        results: list[Comment] = (await session.execute(query)).unique().scalars().all()
+        response = [CommentRead.model_validate(result) for result in results]
+    return response
+
+
 async def get_comment_by_id(comment_id: str) -> Optional[CommentRead]:
     async with async_session() as session:
         query = select(Comment).where(Comment.id == comment_id)
