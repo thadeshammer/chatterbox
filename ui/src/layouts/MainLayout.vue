@@ -12,6 +12,16 @@
           Title
         </q-toolbar-title>
 
+        <div v-if="authStore.isLoggedIn">{{ authStore.user.username }}</div>
+        <q-btn-dropdown dropdown-icon="account_circle" no-icon-animation flat dense round size="24px">
+          <q-list>
+            <q-item clickable v-close-popup @click="authStore.signOut()">
+              <q-item-section>
+                <q-item-label>Log out</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
         <q-btn dense flat round icon="menu" @click="toggleRightDrawer" />
       </q-toolbar>
     </q-header>
@@ -26,33 +36,33 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <div v-if="!authStore.isLoggedIn">
+        <LoginPage/>
+      </div>
+      <div v-if="authStore.isLoggedIn">
+        <router-view />
+      </div>
     </q-page-container>
 
   </q-layout>
 </template>
 
-<script>
+
+<script setup>
 import { ref } from 'vue'
-import CategoryList from '../components/CategoryList.vue'
+import CategoryList from 'src/components/CategoryList.vue';
+import { useAuthStore } from 'src/stores/auth';
+import LoginPage from 'src/pages/LoginPage.vue';
 
-export default {
-  setup () {
-    const leftDrawerOpen = ref(false)
-    const rightDrawerOpen = ref(false)
+const leftDrawerOpen = ref(false)
+const rightDrawerOpen = ref(false)
 
-    return {
-      leftDrawerOpen,
-      toggleLeftDrawer () {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      },
-
-      rightDrawerOpen,
-      toggleRightDrawer () {
-        rightDrawerOpen.value = !rightDrawerOpen.value
-      }
-    }
-  },
-  components:{ CategoryList }
+function toggleLeftDrawer() {
+  leftDrawerOpen.value = !leftDrawerOpen.value
 }
+function toggleRightDrawer() {
+  rightDrawerOpen.value = !rightDrawerOpen.value
+}
+
+const authStore = useAuthStore();
 </script>
