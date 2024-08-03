@@ -2,24 +2,6 @@ from datetime import date
 
 import pytest
 
-from datastore.db.query import (
-    create_board,
-    create_category,
-    create_comment,
-    create_event,
-    create_post,
-    create_user,
-    create_user_profile,
-    get_board_by_id,
-    get_category_by_id,
-    get_comment_by_id,
-    get_event_by_id,
-    get_post_by_id,
-    get_user_profile_by_id,
-    update_board,
-    update_category,
-    update_user,
-)
 from datastore.entities.models import (
     BoardCreate,
     BoardRead,
@@ -38,6 +20,24 @@ from datastore.entities.models import (
     UserProfileRead,
     UserRead,
     UserUpdate,
+)
+from datastore.queries import (
+    create_board,
+    create_category,
+    create_comment,
+    create_event,
+    create_post,
+    create_user,
+    create_user_profile,
+    get_board_by_id,
+    get_category_by_id,
+    get_comment_by_id,
+    get_event_by_id,
+    get_post_by_id,
+    get_user_profile_by_id,
+    update_board,
+    update_category,
+    update_user,
 )
 
 
