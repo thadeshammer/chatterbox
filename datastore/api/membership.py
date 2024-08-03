@@ -5,7 +5,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 from pydantic import ValidationError
 
-from datastore.entities.models import MembershipCreate, MembershipRead
+from datastore.entities.models import MembershipRead
 from datastore.queries import get_memberships_by_board_id, get_memberships_by_user_id
 
 membership_routes = APIRouter()

@@ -48,3 +48,7 @@ class UserProfile(UserProfileBase, table=True):
 class UserProfileRead(UserProfileBase):
     id: str = Field(primary_key=True)
     created_at: datetime = Field()
+
+
+class UserProfileUpdate(SQLModel):
+    birthday: Optional[date] = Field(default=None, nullable=True)

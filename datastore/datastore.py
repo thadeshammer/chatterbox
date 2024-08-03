@@ -22,11 +22,9 @@ from .entities.models import (  # pylint: disable=unused-import
     Board,
     Category,
     Comment,
-    CommentVote,
     Event,
-    EventVote,
+    Membership,
     Post,
-    PostVote,
     User,
     UserProfile,
 )

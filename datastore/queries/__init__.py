@@ -26,7 +26,14 @@ from .get_queries import (
     get_user_by_name,
     get_user_profile_by_id,
 )
-from .update_queries import update_board, update_category, update_user
+from .update_queries import (
+    update_board,
+    update_category,
+    update_event,
+    update_membership,
+    update_user,
+    update_user_profile,
+)
 
 __all__ = [
     "create_board",
@@ -53,7 +60,10 @@ __all__ = [
     "get_user_by_id",
     "get_user_by_name",
     "get_user_profile_by_id",
-    "update_user",
     "update_board",
     "update_category",
+    "update_event",
+    "update_membership",
+    "update_user",
+    "update_user_profile",
 ]

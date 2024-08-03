@@ -24,6 +24,11 @@ from datastore.entities.models import (
     Event,
     EventCreate,
     EventRead,
+    EventUpdate,
+    Membership,
+    MembershipCreate,
+    MembershipRead,
+    MembershipUpdate,
     Post,
     PostCreate,
     PostRead,
@@ -32,6 +37,7 @@ from datastore.entities.models import (
     UserProfile,
     UserProfileCreate,
     UserProfileRead,
+    UserProfileUpdate,
     UserRead,
     UserUpdate,
 )
@@ -93,3 +99,97 @@ async def update_category(
         await session.refresh(category_data)
         response = CategoryRead.model_validate(category_data)
     return response
+
+
+async def update_membership(
+    membership_id: str, membership_update: MembershipUpdate
+) -> MembershipRead:
+    async with async_session() as session:
+        query = select(Membership).where(Membership.id == membership_id)
+        result = await session.execute(query)
+        membership_data = result.scalar_one_or_none()
+
+        if not membership_data:
+            raise ValueError(f"Membership with id {membership_id} does not exist")
+
+        for key, value in membership_update.model_dump(exclude_unset=True).items():
+            setattr(membership_data, key, value)
+
+        await session.commit()
+        await session.refresh(membership_data)
+        response = MembershipRead.model_validate(membership_data)
+    return response
+
+
+async def update_user_profile(
+    user_profile_id: str, user_profile_update: UserProfileUpdate
+) -> UserProfileRead:
+    async with async_session() as session:
+        query = select(UserProfile).where(UserProfile.id == user_profile_id)
+        result = await session.execute(query)
+        user_profile_data = result.scalar_one_or_none()
+
+        if not user_profile_data:
+            raise ValueError(f"UserProfile with id {user_profile_id} does not exist")
+
+        for key, value in user_profile_update.model_dump(exclude_unset=True).items():
+            setattr(user_profile_data, key, value)
+
+        await session.commit()
+        await session.refresh(user_profile_data)
+        response = UserProfileRead.model_validate(user_profile_data)
+    return response
+
+
+# async def update_post(post_id: str, post_update: PostUpdate) -> PostRead:
+#     async with async_session() as session:
+#         query = select(Post).where(Post.id == post_id)
+#         result = await session.execute(query)
+#         post_data = result.scalar_one_or_none()
+
+#         if not post_data:
+#             raise ValueError(f"Post with id {post_id} does not exist")
+
+#         for key, value in post_update.model_dump(exclude_unset=True).items():
+#             setattr(post_data, key, value)
+
+#         await session.commit()
+#         await session.refresh(post_data)
+#         response = PostRead.model_validate(post_data)
+#     return response
+
+
+async def update_event(event_id: str, event_update: EventUpdate) -> EventRead:
+    async with async_session() as session:
+        query = select(Event).where(Event.id == event_id)
+        result = await session.execute(query)
+        event_data = result.scalar_one_or_none()
+
+        if not event_data:
+            raise ValueError(f"Event with id {event_id} does not exist")
+
+        for key, value in event_update.model_dump(exclude_unset=True).items():
+            setattr(event_data, key, value)
+
+        await session.commit()
+        await session.refresh(event_data)
+        response = EventRead.model_validate(event_data)
+    return response
+
+
+# async def update_comment(comment_id: str, comment_update: CommentUpdate) -> CommentRead:
+#     async with async_session() as session:
+#         query = select(Comment).where(Comment.id == comment_id)
+#         result = await session.execute(query)
+#         comment_data = result.scalar_one_or_none()
+
+#         if not comment_data:
+#             raise ValueError(f"Comment with id {comment_id} does not exist")
+
+#         for key, value in comment_update.model_dump(exclude_unset=True).items():
+#             setattr(comment_data, key, value)
+
+#         await session.commit()
+#         await session.refresh(comment_data)
+#         response = CommentRead.model_validate(comment_data)
+#     return response

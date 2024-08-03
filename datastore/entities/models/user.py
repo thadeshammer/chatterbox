@@ -1,6 +1,6 @@
 # datastore/entities/models/user.py
 from datetime import datetime
-from typing import TYPE_CHECKING, Annotated, Any, Optional, cast
+from typing import TYPE_CHECKING, Annotated, Optional, cast
 
 from pydantic import EmailStr, StringConstraints, model_validator
 from sqlmodel import Field, Relationship, SQLModel
@@ -11,17 +11,7 @@ from datastore.entities.ids import EntityPrefix, make_entity_id
 from .._validator_regexes import LOGIN_NAME_REGEX, NICKNAME_REGEX
 
 if TYPE_CHECKING:
-    from . import (
-        Board,
-        Category,
-        Comment,
-        CommentVote,
-        Event,
-        EventVote,
-        Post,
-        PostVote,
-        UserProfile,
-    )
+    from . import Board, Category, Comment, Event, Post, UserProfile
 
 
 class UserCreate(SQLModel):
@@ -82,18 +72,18 @@ class User(UserBase, table=True):
     events: list["Event"] = Relationship(
         back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
     )
-    comment_votes: list["CommentVote"] = Relationship(
-        back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
-    )
-    post_votes: list["PostVote"] = Relationship(
-        back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
-    )
-    event_votes: list["EventVote"] = Relationship(
-        back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
-    )
     user_profile: "UserProfile" = Relationship(
         back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
     )
+    # comment_votes: list["CommentVote"] = Relationship(
+    #     back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
+    # )
+    # post_votes: list["PostVote"] = Relationship(
+    #     back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
+    # )
+    # event_votes: list["EventVote"] = Relationship(
+    #     back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
+    # )
 
 
 class UserRead(UserBase):

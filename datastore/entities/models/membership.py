@@ -55,3 +55,7 @@ class Membership(MembershipBase, table=True):
 class MembershipRead(MembershipBase):
     id: str = Field(primary_key=True)
     joined_at: datetime = Field()
+
+
+class MembershipUpdate(SQLModel):
+    role: str = Field(nullable=False)

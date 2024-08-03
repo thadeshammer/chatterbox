@@ -1,6 +1,6 @@
 # datastore/entities/models/board.py
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from pydantic import model_validator
 from sqlmodel import Field, Relationship, SQLModel
