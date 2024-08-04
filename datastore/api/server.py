@@ -20,7 +20,7 @@ async def healthcheck():
         current_time_local = current_time.astimezone(local_timezone)
     except pytz.UnknownTimeZoneError:
         logger.error(
-            f"Check config: {Config.LOCAL_TIMEZONE} is unknown. Defaulting to {Config.DEFAULT_TIMEZONE}"
+            f"Check config: {local_timezone} is unknown. Defaulting to {Config.DEFAULT_TIMEZONE}"
         )
         local_timezone = pytz.timezone(Config.DEFAULT_TIMEZONE)
         server_start_local = "Error: check config. Use IANA db timezone code."
