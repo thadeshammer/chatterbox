@@ -2,7 +2,6 @@
 """Centralized location for app queries to seperate the ORM from the core.
 """
 import logging
-from typing import Optional
 
 from sqlmodel import select
 
