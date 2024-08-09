@@ -52,9 +52,6 @@ class Event(EventBase, table=True):
     board: "Board" = Relationship(
         back_populates="events", sa_relationship_kwargs={"lazy": "subquery"}
     )
-    # votes: list["EventVote"] = Relationship(
-    #     back_populates="event", sa_relationship_kwargs={"lazy": "subquery"}
-    # )
 
 
 class EventRead(EventBase):
