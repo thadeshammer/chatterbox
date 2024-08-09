@@ -7,18 +7,25 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api import router
+from .api import (
+    board_routes,
+    category_routes,
+    comment_routes,
+    event_routes,
+    membership_routes,
+    post_routes,
+    server_routes,
+    user_routes,
+)
 from .config import Config
 from .db import async_create_all_tables
 from .entities.models import (  # pylint: disable=unused-import
     Board,
     Category,
     Comment,
-    CommentVote,
     Event,
-    EventVote,
+    Membership,
     Post,
-    PostVote,
     User,
     UserProfile,
 )
@@ -71,7 +78,16 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     fastapi_app.debug = False
-    fastapi_app.include_router(router)
+
+    fastapi_app.include_router(board_routes, prefix="/board")
+    fastapi_app.include_router(category_routes, prefix="/category")
+    fastapi_app.include_router(comment_routes, prefix="/comment")
+    fastapi_app.include_router(event_routes, prefix="/event")
+    fastapi_app.include_router(membership_routes, prefix="/membership")
+    fastapi_app.include_router(post_routes, prefix="/post")
+    fastapi_app.include_router(user_routes, prefix="/user")
+    fastapi_app.include_router(server_routes)
+
     return fastapi_app
 
 

@@ -2,6 +2,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional, cast
 
+from pydantic import model_validator
 from sqlmodel import Field, Relationship, SQLModel
 from sqlmodel._compat import SQLModelConfig
 
@@ -55,3 +56,15 @@ class Category(CategoryBase, table=True):
 class CategoryRead(CategoryBase):
     id: str = Field(primary_key=True)
     created_at: datetime = Field()
+
+
+class CategoryUpdate(SQLModel):
+    name: Optional[str] = Field(default=None, min_length=3, max_length=150)
+    description: Optional[str] = Field(default=None, min_length=5, max_length=500)
+
+    @model_validator(mode="after")
+    @classmethod
+    def at_least_one_isnt_none(cls, data: "CategoryUpdate") -> "CategoryUpdate":
+        if not any(value is not None for value in data.model_dump().values()):
+            raise ValueError("All update fields are None.")
+        return data

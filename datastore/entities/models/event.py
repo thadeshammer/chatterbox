@@ -1,5 +1,5 @@
 # datastore/entities/models/event.py
-from datetime import datetime
+from datetime import date, datetime
 from typing import TYPE_CHECKING, Optional, cast
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -11,9 +11,13 @@ if TYPE_CHECKING:
     from . import Board, EventVote, User
 
 
-class EventCreate(SQLModel):
-    name: str = Field(nullable=False, min_length=3, max_length=150)
-    content: str = Field(nullable=False, min_length=1, max_length=3000)
+class _EventFoundation(SQLModel):
+    name: str = Field(..., nullable=False, min_length=3, max_length=150)
+    event_date: date = Field(..., nullable=False)
+    content: str = Field(..., nullable=False, min_length=1, max_length=3000)
+
+
+class EventCreate(_EventFoundation):
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
     board_id: str = Field(..., nullable=False, foreign_key="boards.id")
 
@@ -48,11 +52,15 @@ class Event(EventBase, table=True):
     board: "Board" = Relationship(
         back_populates="events", sa_relationship_kwargs={"lazy": "subquery"}
     )
-    votes: list["EventVote"] = Relationship(
-        back_populates="event", sa_relationship_kwargs={"lazy": "subquery"}
-    )
+    # votes: list["EventVote"] = Relationship(
+    #     back_populates="event", sa_relationship_kwargs={"lazy": "subquery"}
+    # )
 
 
 class EventRead(EventBase):
     id: str = Field(primary_key=True)
     created_at: datetime = Field()
+
+
+class EventUpdate(_EventFoundation):
+    pass

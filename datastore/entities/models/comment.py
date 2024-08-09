@@ -45,9 +45,9 @@ class Comment(CommentBase, table=True):
     post: "Post" = Relationship(
         back_populates="comments", sa_relationship_kwargs={"lazy": "subquery"}
     )
-    votes: list["CommentVote"] = Relationship(
-        back_populates="comment", sa_relationship_kwargs={"lazy": "subquery"}
-    )
+    # votes: list["CommentVote"] = Relationship(
+    #     back_populates="comment", sa_relationship_kwargs={"lazy": "subquery"}
+    # )
 
 
 class CommentRead(CommentBase):
