@@ -62,5 +62,5 @@ class EventRead(EventBase):
     created_at: datetime = Field()
 
 
-class EventUpdate(_EventFoundation):
+class EventUpdate(EventBase):
     pass

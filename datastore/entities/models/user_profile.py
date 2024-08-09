@@ -26,7 +26,8 @@ class UserProfileCreate(SQLModel):
 
 
 class UserProfileBase(UserProfileCreate):
-    pass
+    deleted: bool = Field(default=False)
+    deleted_at: Optional[datetime] = Field(default=None)
 
 
 class UserProfile(UserProfileBase, table=True):
