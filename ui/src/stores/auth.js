@@ -14,6 +14,13 @@ export const useAuthStore = defineStore('auth', {
       const boardStore = useBoardStore()
       boardStore.clear()
       this.user = null
+    },
+    createUser(body) {
+      /*{
+        "name": "indingo",
+        "email": "montoya@youkilledmyfather.com"
+      }*/
+      var good = api.post("/create/user", body)
     }
   },
 });

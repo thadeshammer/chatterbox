@@ -52,11 +52,12 @@
 import { ref } from 'vue'
 import CategoryList from 'src/components/CategoryList.vue';
 import { useAuthStore } from 'src/stores/auth';
+import { useBoardStore } from 'src/stores/board';
 import LoginPage from 'src/pages/LoginPage.vue';
 
 const leftDrawerOpen = ref(false)
 const rightDrawerOpen = ref(false)
-
+const board = useBoardStore()
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
@@ -65,4 +66,5 @@ function toggleRightDrawer() {
 }
 
 const authStore = useAuthStore();
+board.init()
 </script>
