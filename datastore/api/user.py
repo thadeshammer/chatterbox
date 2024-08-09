@@ -1,6 +1,7 @@
 import logging
+from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import ValidationError
 
 from datastore.entities.models import (
@@ -50,38 +51,6 @@ async def create_user_profile_endpoint(user_profile: UserProfileCreate):
     return user_profile_read
 
 
-@user_routes.get("/id/{id}", response_model=UserRead)
-async def get_user_by_id_endpoint(user_id: str) -> UserRead:
-    try:
-        user = await get_user_by_id(user_id)
-        if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-    except ValidationError as e:
-        logger.error(f"Failed validation: {str(e)}")
-        raise HTTPException(status_code=400, detail="Failed validation.") from e
-    except Exception as e:
-        logger.error(f"Ask Thades what happened I guess. {str(e)}")
-        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
-
-    return user
-
-
-@user_routes.get("/name/{name}", response_model=UserRead)
-async def get_user_by_name_endpoint(user_name: str) -> UserRead:
-    try:
-        user = await get_user_by_name(user_name)
-        if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-    except ValidationError as e:
-        logger.error(f"Failed validation: {str(e)}")
-        raise HTTPException(status_code=400, detail="Failed validation.") from e
-    except Exception as e:
-        logger.error(f"Ask Thades what happened I guess. {str(e)}")
-        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
-
-    return user
-
-
 @user_routes.get("/profile/{user_profile_id}", response_model=UserProfileRead)
 async def get_user_profile_endpoint(user_profile_id: str) -> UserProfileRead:
     try:
@@ -96,3 +65,29 @@ async def get_user_profile_endpoint(user_profile_id: str) -> UserProfileRead:
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
     return user_profile
+
+
+@user_routes.get("/", response_model=UserRead)
+async def get_user_endpoint(
+    user_id: Optional[str] = Query(None),
+    user_name: Optional[str] = Query(None),
+) -> UserRead:
+    try:
+        if user_id:
+            user = await get_user_by_id(user_id)
+            if user is None:
+                raise HTTPException(status_code=404, detail="User not found")
+        elif user_name:
+            user = await get_user_by_name(user_name)
+            if user is None:
+                raise HTTPException(status_code=404, detail="User not found")
+        else:
+            raise HTTPException(status_code=400, detail="No query parameters provided")
+    except ValidationError as e:
+        logger.error(f"Failed validation: {str(e)}")
+        raise HTTPException(status_code=400, detail="Failed validation.") from e
+    except Exception as e:
+        logger.error(f"Ask Thades what happened I guess. {str(e)}")
+        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
+
+    return user
