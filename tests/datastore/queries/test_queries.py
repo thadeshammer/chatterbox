@@ -141,6 +141,7 @@ async def test_create_event(async_session):  # pylint: disable=unused-argument
     event_create = EventCreate(
         name="test_name",
         content="describing things and things and things",
+        event_date=date.today(),
         user_id=user_read.id,
         board_id=board_read.id,
     )
@@ -308,9 +309,11 @@ async def test_get_event_by_id(async_session):  # pylint: disable=unused-argumen
     )
     board_read: BoardRead = await create_board(board_create)
 
+    event_date = date.today()
     event_create = EventCreate(
         name="test_name",
         content="describing things and things and things",
+        event_date=event_date,
         user_id=user_read.id,
         board_id=board_read.id,
     )
@@ -318,6 +321,7 @@ async def test_get_event_by_id(async_session):  # pylint: disable=unused-argumen
     fetched_event = await get_event_by_id(event_read.id)
     assert fetched_event is not None
     assert fetched_event.id == event_read.id
+    assert fetched_event.event_date == event_date
 
 
 @pytest.mark.asyncio
