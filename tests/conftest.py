@@ -12,8 +12,8 @@ from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import text
 from sqlmodel import SQLModel
 
-from datastore.config import Config
-from datastore.entities.models import (  # pylint: disable=unused-import
+from chatterbox_backend.config import Config
+from chatterbox_backend.entities.models import (  # pylint: disable=unused-import
     Board,
     Category,
     Comment,
