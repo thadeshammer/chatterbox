@@ -42,7 +42,7 @@ async def create_user_endpoint(user: UserCreate):
             detail = "A unique constraint violation occurred."
 
         logger.error(f"Integrity error: {str(e)}")
-        raise HTTPException(status_code=409, detail=detail)
+        raise HTTPException(status_code=409, detail=detail) from e
     except ValidationError as e:
         logger.error(f"Failed to create user: validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
