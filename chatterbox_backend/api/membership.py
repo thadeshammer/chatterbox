@@ -50,3 +50,7 @@ async def delete_membership_endpoint(membership_id: str = Query(...)):
     except Exception as e:
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
+
+
+def create_membership():
+    pass

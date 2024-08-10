@@ -4,34 +4,26 @@ from typing import Optional
 from sqlalchemy import not_
 from sqlmodel import select
 
-# TODO remove this pylint disable after initial dev push
-# pylint: disable=unused-import
 from chatterbox_backend.db import async_session
 from chatterbox_backend.entities.models import (
     Board,
-    BoardCreate,
     BoardRead,
     BoardUpdate,
     Category,
-    CategoryCreate,
     CategoryRead,
     CategoryUpdate,
     Comment,
-    CommentCreate,
     CommentRead,
     Event,
-    EventCreate,
     EventRead,
+    Invite,
+    InviteRead,
     Membership,
-    MembershipCreate,
     MembershipRead,
     Post,
-    PostCreate,
     PostRead,
     User,
-    UserCreate,
     UserProfile,
-    UserProfileCreate,
     UserProfileRead,
     UserRead,
     UserUpdate,
@@ -83,6 +75,42 @@ async def get_all_boards(show_deleted: bool = False) -> list[BoardRead]:
             query = query.where(not_(Board.deleted))
         results: list[Board] = (await session.execute(query)).unique().scalars().all()
         response = [BoardRead.model_validate(result) for result in results]
+    return response
+
+
+async def get_invites_by_board_id(
+    board_id: str, show_deleted: bool = False
+) -> list[InviteRead]:
+    async with async_session() as session:
+        query = select(Invite).where(Invite.board_id == board_id)
+        if show_deleted is False:
+            query = query.where(not_(Invite.deleted))
+        results: list[Invite] = (await session.execute(query)).unique().scalars().all()
+        response = [InviteRead.model_validate(result) for result in results]
+    return response
+
+
+async def get_invites_by_user_id(
+    user_id: str, show_deleted: bool = False
+) -> list[InviteRead]:
+    async with async_session() as session:
+        query = select(Invite).where(Invite.user_id == user_id)
+        if show_deleted is False:
+            query = query.where(not_(Invite.deleted))
+        results: list[Invite] = (await session.execute(query)).unique().scalars().all()
+        response = [InviteRead.model_validate(result) for result in results]
+    return response
+
+
+async def get_invites_by_email(
+    email: str, show_deleted: bool = False
+) -> list[InviteRead]:
+    async with async_session() as session:
+        query = select(Invite).where(Invite.email == email)
+        if show_deleted is False:
+            query = query.where(not_(Invite.deleted))
+        results: list[Invite] = (await session.execute(query)).unique().scalars().all()
+        response = [InviteRead.model_validate(result) for result in results]
     return response
 
 

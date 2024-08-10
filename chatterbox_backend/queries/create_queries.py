@@ -16,6 +16,9 @@ from chatterbox_backend.entities.models import (
     Event,
     EventCreate,
     EventRead,
+    Invite,
+    InviteCreate,
+    InviteRead,
     Membership,
     MembershipCreate,
     MembershipRead,
@@ -49,6 +52,16 @@ async def create_board(board_create: BoardCreate) -> BoardRead:
         await session.commit()
         await session.refresh(board_data)
         response = BoardRead.model_validate(board_data)
+    return response
+
+
+async def create_invite(invite_create: InviteCreate) -> InviteRead:
+    async with async_session() as session:
+        invite_data = Invite(**invite_create.model_dump())
+        session.add(invite_data)
+        await session.commit()
+        await session.refresh(invite_data)
+        response = InviteRead.model_validate(invite_data)
     return response
 
 
