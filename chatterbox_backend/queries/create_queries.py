@@ -33,6 +33,7 @@ from chatterbox_backend.entities.models import (
     UserRead,
     UserUpdate,
 )
+from chatterbox_backend.exceptions import NotFoundError
 
 
 async def create_user(user_create: UserCreate) -> UserRead:
@@ -57,6 +58,17 @@ async def create_board(board_create: BoardCreate) -> BoardRead:
 
 async def create_invite(invite_create: InviteCreate) -> InviteRead:
     async with async_session() as session:
+        board_exists = await session.get(Board, invite_create.board_id)
+        if not board_exists:
+            raise NotFoundError("Board not found")
+
+        user_exists = await session.get(User, invite_create.issuing_user_id)
+        if not user_exists:
+            raise NotFoundError("Issuing User not found")
+
+        # TODO seperate this logic out
+        # TODO check if user is member of board and has permissions
+
         invite_data = Invite(**invite_create.model_dump())
         session.add(invite_data)
         await session.commit()
