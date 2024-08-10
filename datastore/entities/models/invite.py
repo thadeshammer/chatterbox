@@ -13,11 +13,9 @@ if TYPE_CHECKING:
 
 
 class InviteCreate(SQLModel):
-    email: EmailStr = Field(..., nullable=False, index=True)
-    board_id: str = Field(..., nullable=False, foreign_key="boards.id", index=True)
-    issuing_user_id: str = Field(
-        ..., nullable=False, foreign_key="users.id", index=True
-    )
+    email: EmailStr = Field(..., nullable=False)
+    board_id: str = Field(..., nullable=False, foreign_key="boards.id")
+    issuing_user_id: str = Field(..., nullable=False, foreign_key="users.id")
 
     model_config = cast(
         SQLModelConfig,
