@@ -9,10 +9,10 @@
           <q-avatar>
             <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">
           </q-avatar>
-          Title
+          Chatterbox
         </q-toolbar-title>
 
-        <div v-if="authStore.isLoggedIn">{{ authStore.user.username }}</div>
+        <div v-if="authStore.isLoggedIn">{{ authStore.user.name }}</div>
         <q-btn-dropdown dropdown-icon="account_circle" no-icon-animation flat dense round size="24px">
           <q-list>
             <q-item clickable v-close-popup @click="authStore.signOut()">

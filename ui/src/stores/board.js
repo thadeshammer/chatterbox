@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { api } from 'src/boot/axios';
+import { useAuthStore } from './auth';
+import { useLocalStorage } from '@vueuse/core'
 
 export const useBoardStore = defineStore('board', {
   state: () => ({
@@ -23,7 +25,9 @@ export const useBoardStore = defineStore('board', {
         { title: "Cat 3 Post 3", urlEscaped: "cat_3_post_3", id: "9", body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}
       ]},
     ]*/
-    categories: null
+    categories: null,
+    boardCreate: {},
+    boards: useLocalStorage('boards', []),
   }),
   getters: {
     doubleCount: (state) => state.counter * 2,
@@ -46,13 +50,26 @@ export const useBoardStore = defineStore('board', {
     clear() {
       this.categories = []
     },
-    create(body){
+    async create(body){
       /*{
         "name": "dimwits collective",
         "description": "just dimwits things",
         "user_id": "user-bb772355-37ce-469c-ace2-7630d4f876f4"
       }*/
-      good = api.post("/create/board", body)
+      var authStore = useAuthStore()
+      body.user_id = authStore.user.id
+      var good = await api.post("/board", body)
+      if (!good) {
+        console.error(good)
+      }
+    },
+    async getAll() {
+      var good = await api.get("/board")
+      if (!good) {
+        console.error(good)
+        return
+      }
+      this.boards = good.data
     },
     init() {
       if (this.categories != null) {

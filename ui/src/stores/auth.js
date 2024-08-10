@@ -1,13 +1,15 @@
 import { defineStore } from 'pinia';
 import { useBoardStore } from '../stores/board'
+import { api } from '../boot/axios'
+import { useLocalStorage } from '@vueuse/core'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: { username: "Jake" },
-    signUpLogin: { username:"", password:"", passwordConfirm: "" }
+    user: useLocalStorage('user', {}),
+    signUpLogin: { name:"", password:"", passwordConfirm: "" }
   }),
   getters: {
-    isLoggedIn: (state) => { if (state.user === null) { return false} else { return true }},
+    isLoggedIn: (state) => { if ('name' in state.user && state.user.name !== "") { return true} else { return false }},
   },
   actions: {
     signOut() {
@@ -15,12 +17,22 @@ export const useAuthStore = defineStore('auth', {
       boardStore.clear()
       this.user = null
     },
-    createUser(body) {
+    async create(body) {
       /*{
-        "name": "indingo",
-        "email": "montoya@youkilledmyfather.com"
+        "name": "kyt82",
+        "email": "user@example.com",
+        "nickname": "Kpy738s"
       }*/
-      var good = api.post("/create/user", body)
+      body.nickname = body.name
+      var good = await api.post("/user", body)
+    },
+    async getByName(name) {
+      var good = await api.get("/user/name/" + name, { params: { user_name: name }})
+      if (!good) {
+        console.error(good)
+        return
+      }
+      this.user = good.data
     }
   },
 });
