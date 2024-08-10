@@ -6,10 +6,17 @@ from typing import Optional, Union
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import ValidationError
 
-from datastore.entities.models import BoardCreate, BoardRead
+from datastore.entities.models import (
+    BoardCreate,
+    BoardRead,
+    MembershipCreate,
+    MembershipRead,
+    UserRole,
+)
 from datastore.exceptions import NotFoundError
 from datastore.queries import (
     create_board,
+    create_membership,
     delete_board,
     get_all_boards,
     get_board_by_id,
@@ -40,10 +47,14 @@ async def get_boards_endpoint(
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
 
-@board_routes.post("/", response_model=BoardRead)
+@board_routes.post("/", response_model=dict)
 async def create_board_endpoint(board: BoardCreate):
     try:
         board_read: BoardRead = await create_board(board)
+        membership_create = MembershipCreate(
+            user_id=board_read.user_id, board_id=board_read.id, role=UserRole.ADMIN
+        )
+        membership_read = await create_membership(membership_create)
     except ValidationError as e:
         logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
@@ -51,7 +62,7 @@ async def create_board_endpoint(board: BoardCreate):
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
-    return board_read
+    return {"board": board_read, "membership": membership_read}
 
 
 @board_routes.delete("/", status_code=204)

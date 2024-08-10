@@ -3,6 +3,7 @@ from .create_queries import (
     create_category,
     create_comment,
     create_event,
+    create_membership,
     create_post,
     create_user,
     create_user_profile,
