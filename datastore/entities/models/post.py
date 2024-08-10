@@ -8,13 +8,13 @@ from sqlmodel._compat import SQLModelConfig
 from datastore.entities.ids import EntityPrefix, make_entity_id
 
 if TYPE_CHECKING:
-    from . import Category, Comment, PostVote, User
+    from . import Category, Comment, User
 
 
 class PostCreate(SQLModel):
     name: str = Field(..., nullable=False, min_length=3, max_length=150)
     content: str = Field(..., nullable=False, min_length=1, max_length=3000)
-    user_id: str = Field(..., nullable=False, foreign_key="users.id")
+    user_id: str = Field(..., nullable=False, foreign_key="users.id", index=True)
     category_id: str = Field(..., nullable=False, foreign_key="categories.id")
 
     model_config = cast(
@@ -51,9 +51,6 @@ class Post(PostBase, table=True):
     comments: list["Comment"] = Relationship(
         back_populates="post", sa_relationship_kwargs={"lazy": "subquery"}
     )
-    # votes: list["PostVote"] = Relationship(
-    #     back_populates="post", sa_relationship_kwargs={"lazy": "subquery"}
-    # )
 
 
 class PostRead(PostBase):

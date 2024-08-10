@@ -128,7 +128,6 @@ async def test_get_comments_by_post_id_and_user_id(
     )
     comment_read1: CommentRead = await create_comment(comment_create1)
 
-    print(f"{comment_read1=}")
     assert comment_read1.deleted is False
 
     comment_create2 = CommentCreate(

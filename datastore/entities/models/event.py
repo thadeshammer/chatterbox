@@ -8,17 +8,17 @@ from sqlmodel._compat import SQLModelConfig
 from datastore.entities.ids import EntityPrefix, make_entity_id
 
 if TYPE_CHECKING:
-    from . import Board, EventVote, User
+    from . import Board, User
 
 
 class _EventFoundation(SQLModel):
     name: str = Field(..., nullable=False, min_length=3, max_length=150)
-    event_date: date = Field(..., nullable=False)
+    event_date: date = Field(..., nullable=False, index=True)
     content: str = Field(..., nullable=False, min_length=1, max_length=3000)
 
 
 class EventCreate(_EventFoundation):
-    user_id: str = Field(..., nullable=False, foreign_key="users.id")
+    user_id: str = Field(..., nullable=False, foreign_key="users.id", index=True)
     board_id: str = Field(..., nullable=False, foreign_key="boards.id")
 
     model_config = cast(

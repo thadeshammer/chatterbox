@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 
 
 class BoardCreate(SQLModel):
-    name: str = Field(..., nullable=False, min_length=3, max_length=150)
+    name: str = Field(..., nullable=False, min_length=3, max_length=150, index=True)
     description: str = Field(..., nullable=False, min_length=5, max_length=500)
-    user_id: str = Field(..., nullable=False, foreign_key="users.id")
+    user_id: str = Field(..., nullable=False, foreign_key="users.id", index=True)
 
     model_config = cast(
         SQLModelConfig,

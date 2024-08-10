@@ -17,7 +17,7 @@ class CategoryCreate(SQLModel):
     description: str = Field(nullable=False, min_length=5, max_length=500)
 
     user_id: str = Field(..., nullable=False, foreign_key="users.id")
-    board_id: str = Field(..., nullable=False, foreign_key="boards.id")
+    board_id: str = Field(..., nullable=False, foreign_key="boards.id", index=True)
 
     model_config = cast(
         SQLModelConfig,
