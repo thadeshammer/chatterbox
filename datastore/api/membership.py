@@ -1,13 +1,18 @@
 # /datastore/api/membership.py
 # prefix: /membership
 import logging
-from typing import Optional, Union
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import ValidationError
 
 from datastore.entities.models import MembershipRead
-from datastore.queries import get_memberships_by_board_id, get_memberships_by_user_id
+from datastore.exceptions import NotFoundError
+from datastore.queries import (
+    delete_membership,
+    get_memberships_by_board_id,
+    get_memberships_by_user_id,
+)
 
 membership_routes = APIRouter()
 
@@ -42,3 +47,18 @@ async def get_memberships_endpoint(
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
     return memberships
+
+
+@membership_routes.delete("/", status_code=204)
+async def delete_membership_endpoint(membership_id: str = Query(...)):
+    try:
+        await delete_membership(membership_id)
+    except NotFoundError as e:
+        logger.error(str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    except ValidationError as e:
+        logger.error(f"Validation error. {str(e)}")
+        raise HTTPException(status_code=400, detail="Failed validation.") from e
+    except Exception as e:
+        logger.error(f"Ask Thades what happened I guess. {str(e)}")
+        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e

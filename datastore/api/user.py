@@ -10,9 +10,12 @@ from datastore.entities.models import (
     UserProfileRead,
     UserRead,
 )
+from datastore.exceptions import NotFoundError
 from datastore.queries import (
     create_user,
     create_user_profile,
+    delete_user,
+    delete_user_profile,
     get_user_by_id,
     get_user_by_name,
     get_user_profile_by_id,
@@ -51,8 +54,10 @@ async def create_user_profile_endpoint(user_profile: UserProfileCreate):
     return user_profile_read
 
 
-@user_routes.get("/profile/{user_profile_id}", response_model=UserProfileRead)
-async def get_user_profile_endpoint(user_profile_id: str) -> UserProfileRead:
+@user_routes.get("/profile/", response_model=UserProfileRead)
+async def get_user_profile_endpoint(
+    user_profile_id: str = Query(...),
+) -> UserProfileRead:
     try:
         user_profile = await get_user_profile_by_id(user_profile_id)
         if user_profile is None:
@@ -91,3 +96,33 @@ async def get_user_endpoint(
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
     return user
+
+
+@user_routes.delete("/", status_code=204)
+async def delete_user_endpoint(user_id: str = Query(...)):
+    try:
+        await delete_user(user_id)
+    except NotFoundError as e:
+        logger.error(str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    except ValidationError as e:
+        logger.error(f"Validation error. {str(e)}")
+        raise HTTPException(status_code=400, detail="Failed validation.") from e
+    except Exception as e:
+        logger.error(f"Ask Thades what happened I guess. {str(e)}")
+        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
+
+
+@user_routes.delete("/profile/", status_code=204)
+async def delete_user_profile_endpoint(user_profile_id: str = Query(...)):
+    try:
+        await delete_user_profile(user_profile_id)
+    except NotFoundError as e:
+        logger.error(str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    except ValidationError as e:
+        logger.error(f"Validation error. {str(e)}")
+        raise HTTPException(status_code=400, detail="Failed validation.") from e
+    except Exception as e:
+        logger.error(f"Ask Thades what happened I guess. {str(e)}")
+        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e

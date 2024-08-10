@@ -15,6 +15,7 @@ from datastore.entities.models import (
     User,
     UserProfile,
 )
+from datastore.exceptions import NotFoundError
 
 
 async def delete_comment(comment_id: str):
@@ -25,7 +26,7 @@ async def delete_comment(comment_id: str):
             comment_data = result.scalar_one_or_none()
 
             if comment_data is None:
-                raise ValueError(f"No such entity: {comment_id}")
+                raise NotFoundError(f"No such entity: {comment_id}")
             if comment_data.deleted:
                 raise ValueError(f"Comment already deleted: {comment_id}")
 
@@ -46,7 +47,7 @@ async def delete_invite(invite_id: str):
             invite_data = result.scalar_one_or_none()
 
             if invite_data is None:
-                raise ValueError(f"No such entity: {invite_id}")
+                raise NotFoundError(f"No such entity: {invite_id}")
             if invite_data.deleted:
                 raise ValueError(f"Entity already deleted: {invite_id}")
 
@@ -67,7 +68,7 @@ async def delete_event(event_id: str):
             event_data = result.scalar_one_or_none()
 
             if event_data is None:
-                raise ValueError(f"No such entity: {event_id}")
+                raise NotFoundError(f"No such entity: {event_id}")
             if event_data.deleted:
                 raise ValueError(f"Entity already deleted: {event_id}")
 
@@ -88,7 +89,7 @@ async def delete_post(post_id: str):
             post_data = result.scalar_one_or_none()
 
             if post_data is None:
-                raise ValueError(f"No such entity: {post_id}")
+                raise NotFoundError(f"No such entity: {post_id}")
             if post_data.deleted:
                 raise ValueError(f"Entity is already deleted: {post_id}")
 
@@ -113,7 +114,7 @@ async def delete_user(user_id: str):
             user_data = result.scalar_one_or_none()
 
             if not user_data:
-                raise ValueError(f"No such entity: {user_id}")
+                raise NotFoundError(f"No such entity: {user_id}")
             if user_data.deleted:
                 raise ValueError(f"Entity is already deleted: {user_id}")
 
@@ -137,7 +138,7 @@ async def delete_user_profile(user_profile_id: str):
             user_profile_data = result.scalar_one_or_none()
 
             if not user_profile_data:
-                raise ValueError(f"No such entity: {user_profile_id}")
+                raise NotFoundError(f"No such entity: {user_profile_id}")
             if user_profile_data.deleted:
                 raise ValueError(f"Entity is already deleted: {user_profile_id}")
 
@@ -157,7 +158,7 @@ async def delete_membership(membership_id: str):
             membership_data = result.scalar_one_or_none()
 
             if not membership_data:
-                raise ValueError(f"No such entity: {membership_id}")
+                raise NotFoundError(f"No such entity: {membership_id}")
             if membership_data.deleted:
                 raise ValueError(f"Entity is already deleted: {membership_id}")
 
@@ -177,7 +178,7 @@ async def delete_category(category_id: str):
             category_data = result.scalar_one_or_none()
 
             if not category_data:
-                raise ValueError(f"No such entity: {category_id}")
+                raise NotFoundError(f"No such entity: {category_id}")
             if category_data.deleted:
                 raise ValueError(f"Entity is already deleted: {category_id}")
 
@@ -204,7 +205,7 @@ async def delete_board(board_id: str):
             board_data = result.scalar_one_or_none()
 
             if not board_data:
-                raise ValueError(f"No such entity: {board_id}")
+                raise NotFoundError(f"No such entity: {board_id}")
             if board_data.deleted:
                 raise ValueError(f"Entity is already deleted: {board_id}")
 

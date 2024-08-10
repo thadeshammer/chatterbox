@@ -7,8 +7,10 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import ValidationError
 
 from datastore.entities.models import CategoryCreate, CategoryRead
+from datastore.exceptions import NotFoundError
 from datastore.queries import (
     create_category,
+    delete_category,
     get_categories_by_board_id,
     get_category_by_id,
 )
@@ -29,15 +31,18 @@ async def get_categories_endpoint(
             if category is None:
                 raise HTTPException(status_code=404, detail="Category not found")
             return category
-        elif board_id:
+        if board_id:
             categories = await get_categories_by_board_id(board_id)
             if not categories:
                 raise HTTPException(status_code=404, detail="Categories not found")
             return categories
-        else:
-            raise HTTPException(status_code=400, detail="No query parameters provided")
+
+        raise HTTPException(status_code=400, detail="No query parameters provided")
+    except NotFoundError as e:
+        logger.error(str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
     except ValidationError as e:
-        logger.error(f"Failed validation: {str(e)}")
+        logger.error(f"Validation error: {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
     except Exception as e:
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
@@ -49,10 +54,25 @@ async def create_category_endpoint(category: CategoryCreate):
     try:
         category_read: CategoryRead = await create_category(category)
     except ValidationError as e:
-        logger.error(f"Failed to create category: validation error. {str(e)}")
+        logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
     except Exception as e:
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
     return category_read
+
+
+@category_routes.delete("/", status_code=204)
+async def delete_category_endpoint(category_id: str = Query(...)):
+    try:
+        await delete_category(category_id)
+    except NotFoundError as e:
+        logger.error(str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    except ValidationError as e:
+        logger.error(f"Validation error. {str(e)}")
+        raise HTTPException(status_code=400, detail="Failed validation.") from e
+    except Exception as e:
+        logger.error(f"Ask Thades what happened I guess. {str(e)}")
+        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e

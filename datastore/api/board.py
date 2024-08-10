@@ -7,8 +7,10 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import ValidationError
 
 from datastore.entities.models import BoardCreate, BoardRead
+from datastore.exceptions import NotFoundError
 from datastore.queries import (
     create_board,
+    delete_board,
     get_all_boards,
     get_board_by_id,
     get_boards_created_by_user_id,
@@ -30,18 +32,17 @@ async def get_boards_endpoint(
             if board is None:
                 raise HTTPException(status_code=404, detail="Board not found")
             return board
-        elif user_id:
+        if user_id:
             boards = await get_boards_created_by_user_id(user_id)
             if not boards:
                 raise HTTPException(status_code=404, detail="Boards not found")
             return boards
-        else:
-            boards = await get_all_boards()
-            if not boards:
-                raise HTTPException(status_code=404, detail="Boards not found")
-            return boards
+        boards = await get_all_boards()
+        if not boards:
+            raise HTTPException(status_code=404, detail="Boards not found")
+        return boards
     except ValidationError as e:
-        logger.error(f"Failed validation: {str(e)}")
+        logger.error(f"Validation error: {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
     except Exception as e:
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
@@ -53,10 +54,25 @@ async def create_board_endpoint(board: BoardCreate):
     try:
         board_read: BoardRead = await create_board(board)
     except ValidationError as e:
-        logger.error(f"Failed to create board: validation error. {str(e)}")
+        logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
     except Exception as e:
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
     return board_read
+
+
+@board_routes.delete("/", status_code=204)
+async def delete_board_endpoint(board_id: str = Query(...)):
+    try:
+        await delete_board(board_id)
+    except NotFoundError as e:
+        logger.error(str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    except ValidationError as e:
+        logger.error(f"Validation error. {str(e)}")
+        raise HTTPException(status_code=400, detail="Failed validation.") from e
+    except Exception as e:
+        logger.error(f"Ask Thades what happened I guess. {str(e)}")
+        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e

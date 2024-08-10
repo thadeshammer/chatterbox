@@ -7,7 +7,13 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import ValidationError
 
 from datastore.entities.models import PostCreate, PostRead
-from datastore.queries import create_post, get_post_by_id, get_posts_by_category_id
+from datastore.exceptions import NotFoundError
+from datastore.queries import (
+    create_post,
+    delete_post,
+    get_post_by_id,
+    get_posts_by_category_id,
+)
 
 post_routes = APIRouter()
 
@@ -52,3 +58,18 @@ async def create_post_endpoint(post: PostCreate):
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
     return post_read
+
+
+@post_routes.delete("/", status_code=204)
+async def delete_post_endpoint(post_id: str = Query(...)):
+    try:
+        await delete_post(post_id)
+    except NotFoundError as e:
+        logger.error(str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    except ValidationError as e:
+        logger.error(f"Validation error. {str(e)}")
+        raise HTTPException(status_code=400, detail="Failed validation.") from e
+    except Exception as e:
+        logger.error(f"Ask Thades what happened I guess. {str(e)}")
+        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
