@@ -3,6 +3,7 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import ValidationError
+from sqlalchemy.exc import IntegrityError
 
 from datastore.entities.models import (
     UserCreate,
@@ -30,6 +31,18 @@ logger = logging.getLogger(__name__)
 async def create_user_endpoint(user: UserCreate):
     try:
         return await create_user(user)
+    except IntegrityError as e:
+        if "email" in str(e.orig):
+            detail = "A user with this email already exists."
+        elif "nick" in str(e.orig):
+            detail = "This username is already taken."
+        elif "name" in str(e.orig):
+            detail = "This nickname is already in use."
+        else:
+            detail = "A unique constraint violation occurred."
+
+        logger.error(f"Integrity error: {str(e)}")
+        raise HTTPException(status_code=409, detail=detail)
     except ValidationError as e:
         logger.error(f"Failed to create user: validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
