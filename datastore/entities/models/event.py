@@ -52,9 +52,6 @@ class Event(EventBase, table=True):
     board: "Board" = Relationship(
         back_populates="events", sa_relationship_kwargs={"lazy": "subquery"}
     )
-    # votes: list["EventVote"] = Relationship(
-    #     back_populates="event", sa_relationship_kwargs={"lazy": "subquery"}
-    # )
 
 
 class EventRead(EventBase):
@@ -62,5 +59,5 @@ class EventRead(EventBase):
     created_at: datetime = Field()
 
 
-class EventUpdate(_EventFoundation):
+class EventUpdate(EventBase):
     pass

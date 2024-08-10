@@ -9,7 +9,7 @@ from sqlmodel._compat import SQLModelConfig
 from datastore.entities.ids import EntityPrefix, make_entity_id
 
 if TYPE_CHECKING:
-    from . import Category, Event, User
+    from . import Category, Event, Invite, User
 
 
 class BoardCreate(SQLModel):
@@ -50,6 +50,9 @@ class Board(BoardBase, table=True):
         back_populates="board", sa_relationship_kwargs={"lazy": "subquery"}
     )
     members: list["Membership"] = Relationship(
+        back_populates="board", sa_relationship_kwargs={"lazy": "subquery"}
+    )
+    invites: list["Invite"] = Relationship(
         back_populates="board", sa_relationship_kwargs={"lazy": "subquery"}
     )
 

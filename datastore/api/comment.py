@@ -1,6 +1,7 @@
 import logging
+from typing import Optional, Union
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import ValidationError
 
 from datastore.entities.models import CommentCreate, CommentRead
@@ -16,52 +17,36 @@ comment_routes = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@comment_routes.get("/{comment_id}", response_model=CommentRead)
-async def get_comment_endpoint(comment_id: str) -> CommentRead:
+@comment_routes.get("/", response_model=Union[CommentRead, list[CommentRead]])
+async def get_comments_endpoint(
+    comment_id: Optional[str] = Query(None),
+    user_id: Optional[str] = Query(None),
+    post_id: Optional[str] = Query(None),
+) -> Union[CommentRead, list[CommentRead]]:
     try:
-        comment = await get_comment_by_id(comment_id)
-        if comment is None:
-            raise HTTPException(status_code=404, detail="Comment not found")
+        if comment_id:
+            comment = await get_comment_by_id(comment_id)
+            if comment is None:
+                raise HTTPException(status_code=404, detail="Comment not found")
+            return comment
+        elif user_id:
+            comments = await get_comments_by_user_id(user_id)
+            if not comments:
+                raise HTTPException(status_code=404, detail="Comments not found")
+            return comments
+        elif post_id:
+            comments = await get_comments_by_post_id(post_id)
+            if not comments:
+                raise HTTPException(status_code=404, detail="Comments not found")
+            return comments
+        else:
+            raise HTTPException(status_code=400, detail="No query parameters provided")
     except ValidationError as e:
         logger.error(f"Failed validation: {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
     except Exception as e:
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
-
-    return comment
-
-
-@comment_routes.get("/user/{user_id}", response_model=list[CommentRead])
-async def get_comments_by_user_id_endpoint(user_id: str) -> list[CommentRead]:
-    try:
-        comments = await get_comments_by_user_id(user_id)
-        if comments is None:
-            raise HTTPException(status_code=404, detail="Comment not found")
-    except ValidationError as e:
-        logger.error(f"Failed validation: {str(e)}")
-        raise HTTPException(status_code=400, detail="Failed validation.") from e
-    except Exception as e:
-        logger.error(f"Ask Thades what happened I guess. {str(e)}")
-        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
-
-    return comments
-
-
-@comment_routes.get("/post/{post_id}", response_model=list[CommentRead])
-async def get_comments_by_post_id_endpoint(post_id: str) -> list[CommentRead]:
-    try:
-        comments = await get_comments_by_post_id(post_id)
-        if comments is None:
-            raise HTTPException(status_code=404, detail="Comment not found")
-    except ValidationError as e:
-        logger.error(f"Failed validation: {str(e)}")
-        raise HTTPException(status_code=400, detail="Failed validation.") from e
-    except Exception as e:
-        logger.error(f"Ask Thades what happened I guess. {str(e)}")
-        raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
-
-    return comments
 
 
 @comment_routes.post("/", response_model=CommentRead)

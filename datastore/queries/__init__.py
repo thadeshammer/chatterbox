@@ -7,6 +7,17 @@ from .create_queries import (
     create_user,
     create_user_profile,
 )
+from .delete_queries import (
+    delete_board,
+    delete_category,
+    delete_comment,
+    delete_event,
+    delete_invite,
+    delete_membership,
+    delete_post,
+    delete_user,
+    delete_user_profile,
+)
 from .get_queries import (
     get_all_boards,
     get_board_by_id,

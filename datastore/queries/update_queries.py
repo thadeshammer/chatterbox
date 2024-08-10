@@ -50,8 +50,8 @@ async def update_user(user_id: str, user_update: UserUpdate) -> UserRead:
         result = await session.execute(query)
         user_data = result.scalar_one_or_none()
 
-        if not user_data:
-            raise ValueError(f"User with id {user_id} does not exist")
+        if not user_data or user_data.deleted:
+            raise ValueError(f"No such entity: {user_id}")
 
         for key, value in user_update.model_dump(exclude_unset=True).items():
             setattr(user_data, key, value)
@@ -68,8 +68,8 @@ async def update_board(board_id: str, board_update: BoardUpdate) -> BoardRead:
         result = await session.execute(statement)
         board_data = result.scalar_one_or_none()
 
-        if not board_data:
-            raise ValueError(f"Board with id {board_id} does not exist")
+        if not board_data or board_data.deleted:
+            raise ValueError(f"No such entity: {board_id}")
 
         for key, value in board_update.model_dump(exclude_unset=True).items():
             setattr(board_data, key, value)
@@ -88,8 +88,8 @@ async def update_category(
         result = await session.execute(statement)
         category_data = result.scalar_one_or_none()
 
-        if not category_data:
-            raise ValueError(f"Category with id {category_id} does not exist")
+        if not category_data or category_data.deleted:
+            raise ValueError(f"No such entity: {category_id}")
 
         for key, value in category_update.model_dump(exclude_unset=True).items():
             setattr(category_data, key, value)
@@ -108,8 +108,8 @@ async def update_membership(
         result = await session.execute(query)
         membership_data = result.scalar_one_or_none()
 
-        if not membership_data:
-            raise ValueError(f"Membership with id {membership_id} does not exist")
+        if not membership_data or membership_data.deleted:
+            raise ValueError(f"No such entity: {membership_id}")
 
         for key, value in membership_update.model_dump(exclude_unset=True).items():
             setattr(membership_data, key, value)
@@ -128,8 +128,8 @@ async def update_user_profile(
         result = await session.execute(query)
         user_profile_data = result.scalar_one_or_none()
 
-        if not user_profile_data:
-            raise ValueError(f"UserProfile with id {user_profile_id} does not exist")
+        if not user_profile_data or user_profile_data.deleted:
+            raise ValueError(f"No such entity: {user_profile_id}")
 
         for key, value in user_profile_update.model_dump(exclude_unset=True).items():
             setattr(user_profile_data, key, value)
@@ -164,8 +164,8 @@ async def update_event(event_id: str, event_update: EventUpdate) -> EventRead:
         result = await session.execute(query)
         event_data = result.scalar_one_or_none()
 
-        if not event_data:
-            raise ValueError(f"Event with id {event_id} does not exist")
+        if not event_data or event_data.deleted:
+            raise ValueError(f"No such entity: {event_id}")
 
         for key, value in event_update.model_dump(exclude_unset=True).items():
             setattr(event_data, key, value)

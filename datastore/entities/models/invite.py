@@ -27,7 +27,6 @@ class InviteCreate(SQLModel):
 
 class InviteBase(InviteCreate):
     accepted_at: Optional[datetime] = Field(default=None)
-    invited_user_id: Optional[str] = Field(default=None, foreign_key="users.id")
 
 
 class Invite(InviteBase, table=True):

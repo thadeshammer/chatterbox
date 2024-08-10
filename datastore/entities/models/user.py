@@ -11,7 +11,7 @@ from datastore.entities.ids import EntityPrefix, make_entity_id
 from .._validator_regexes import LOGIN_NAME_REGEX, NICKNAME_REGEX
 
 if TYPE_CHECKING:
-    from . import Board, Category, Comment, Event, Post, UserProfile
+    from . import Board, Category, Comment, Event, Invite, Post, UserProfile
 
 
 class UserCreate(SQLModel):
@@ -43,7 +43,8 @@ class UserCreate(SQLModel):
 
 
 class UserBase(UserCreate):
-    pass
+    deleted: bool = Field(default=False)
+    deleted_at: Optional[datetime] = Field(default=None)
 
 
 class User(UserBase, table=True):
@@ -75,15 +76,9 @@ class User(UserBase, table=True):
     user_profile: "UserProfile" = Relationship(
         back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
     )
-    # comment_votes: list["CommentVote"] = Relationship(
-    #     back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
-    # )
-    # post_votes: list["PostVote"] = Relationship(
-    #     back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
-    # )
-    # event_votes: list["EventVote"] = Relationship(
-    #     back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
-    # )
+    invites: list["Invite"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"lazy": "subquery"}
+    )
 
 
 class UserRead(UserBase):

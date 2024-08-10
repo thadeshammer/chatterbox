@@ -1,7 +1,7 @@
 # datastore/entities/models/post.py
 from datetime import datetime
 from enum import StrEnum
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from sqlmodel import Field, Relationship, SQLModel
 from sqlmodel._compat import SQLModelConfig
@@ -32,7 +32,10 @@ class MembershipCreate(SQLModel):
 
 
 class MembershipBase(MembershipCreate):
-    pass
+    approved: bool = Field(default=True)
+    approved_at: Optional[datetime] = Field(default=None)
+    deleted: bool = Field(default=False)
+    deleted_at: Optional[datetime] = Field(default=None)
 
 
 class Membership(MembershipBase, table=True):
