@@ -29,15 +29,13 @@ logger = logging.getLogger(__name__)
 @user_routes.post("/", response_model=UserRead)
 async def create_user_endpoint(user: UserCreate):
     try:
-        user_read: UserRead = await create_user(user)
+        return await create_user(user)
     except ValidationError as e:
         logger.error(f"Failed to create user: validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
     except Exception as e:
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
-
-    return user_read
 
 
 @user_routes.post("/profile/", response_model=UserProfileRead)

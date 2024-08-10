@@ -1,5 +1,6 @@
 # datastore/entities/__init__.py
 
+from .action_log import ActionLog
 from .board import Board, BoardCreate, BoardRead, BoardUpdate
 from .category import Category, CategoryCreate, CategoryRead, CategoryUpdate
 from .comment import Comment, CommentCreate, CommentRead
