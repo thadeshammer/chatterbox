@@ -27,20 +27,10 @@ async def get_categories_endpoint(
 ) -> Union[CategoryRead, list[CategoryRead]]:
     try:
         if category_id:
-            category = await get_category_by_id(category_id)
-            if category is None:
-                raise HTTPException(status_code=404, detail="Category not found")
-            return category
+            return await get_category_by_id(category_id)
         if board_id:
-            categories = await get_categories_by_board_id(board_id)
-            if not categories:
-                raise HTTPException(status_code=404, detail="Categories not found")
-            return categories
-
-        raise HTTPException(status_code=400, detail="No query parameters provided")
-    except NotFoundError as e:
-        logger.error(str(e))
-        raise HTTPException(status_code=404, detail=str(e)) from e
+            return await get_categories_by_board_id(board_id)
+        return []
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
@@ -52,7 +42,7 @@ async def get_categories_endpoint(
 @category_routes.post("/", response_model=CategoryRead)
 async def create_category_endpoint(category: CategoryCreate):
     try:
-        category_read: CategoryRead = await create_category(category)
+        return await create_category(category)
     except ValidationError as e:
         logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
@@ -60,16 +50,13 @@ async def create_category_endpoint(category: CategoryCreate):
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
-    return category_read
-
 
 @category_routes.delete("/", status_code=204)
 async def delete_category_endpoint(category_id: str = Query(...)):
     try:
         await delete_category(category_id)
     except NotFoundError as e:
-        logger.error(str(e))
-        raise HTTPException(status_code=404, detail=str(e)) from e
+        logger.info(str(e))
     except ValidationError as e:
         logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e

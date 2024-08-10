@@ -27,22 +27,12 @@ async def get_comments_endpoint(
 ) -> Union[CommentRead, list[CommentRead]]:
     try:
         if comment_id:
-            comment = await get_comment_by_id(comment_id)
-            if comment is None:
-                raise HTTPException(status_code=404, detail="Comment not found")
-            return comment
-        elif user_id:
-            comments = await get_comments_by_user_id(user_id)
-            if not comments:
-                raise HTTPException(status_code=404, detail="Comments not found")
-            return comments
-        elif post_id:
-            comments = await get_comments_by_post_id(post_id)
-            if not comments:
-                raise HTTPException(status_code=404, detail="Comments not found")
-            return comments
-        else:
-            raise HTTPException(status_code=400, detail="No query parameters provided")
+            return await get_comment_by_id(comment_id)
+        if user_id:
+            return await get_comments_by_user_id(user_id)
+        if post_id:
+            return await get_comments_by_post_id(post_id)
+        return []
     except ValidationError as e:
         logger.error(f"Failed validation: {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
@@ -54,7 +44,7 @@ async def get_comments_endpoint(
 @comment_routes.post("/", response_model=CommentRead)
 async def create_comment_endpoint(comment: CommentCreate):
     try:
-        comment_read: CommentRead = await create_comment(comment)
+        return await create_comment(comment)
     except ValidationError as e:
         logger.error(f"Failed to create comment: validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
@@ -62,16 +52,13 @@ async def create_comment_endpoint(comment: CommentCreate):
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
-    return comment_read
-
 
 @comment_routes.delete("/", status_code=204)
 async def delete_comment_endpoint(comment_id: str = Query(...)):
     try:
         await delete_comment(comment_id)
     except NotFoundError as e:
-        logger.error(str(e))
-        raise HTTPException(status_code=404, detail=str(e)) from e
+        logger.info(str(e))
     except ValidationError as e:
         logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e

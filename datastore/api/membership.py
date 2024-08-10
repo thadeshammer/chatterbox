@@ -26,19 +26,10 @@ async def get_memberships_endpoint(
 ) -> list[MembershipRead]:
     try:
         if board_id:
-            memberships = await get_memberships_by_board_id(board_id)
-            if not memberships:
-                raise HTTPException(
-                    status_code=404, detail="No memberships found for this board"
-                )
-        elif user_id:
-            memberships = await get_memberships_by_user_id(user_id)
-            if not memberships:
-                raise HTTPException(
-                    status_code=404, detail="No memberships found for this user"
-                )
-        else:
-            raise HTTPException(status_code=400, detail="No query parameters provided")
+            return await get_memberships_by_board_id(board_id)
+        if user_id:
+            return await get_memberships_by_user_id(user_id)
+        return []
     except ValidationError as e:
         logger.error(f"Failed validation: {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
@@ -46,16 +37,13 @@ async def get_memberships_endpoint(
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
-    return memberships
-
 
 @membership_routes.delete("/", status_code=204)
 async def delete_membership_endpoint(membership_id: str = Query(...)):
     try:
         await delete_membership(membership_id)
     except NotFoundError as e:
-        logger.error(str(e))
-        raise HTTPException(status_code=404, detail=str(e)) from e
+        logger.info(str(e))
     except ValidationError as e:
         logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e

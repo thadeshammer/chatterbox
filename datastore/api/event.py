@@ -27,17 +27,10 @@ async def get_events_endpoint(
 ) -> Union[EventRead, list[EventRead]]:
     try:
         if event_id:
-            event = await get_event_by_id(event_id)
-            if event is None:
-                raise HTTPException(status_code=404, detail="Event not found")
-            return event
-        elif board_id:
-            events = await get_events_by_board_id(board_id)
-            if not events:
-                raise HTTPException(status_code=404, detail="Events not found")
-            return events
-        else:
-            raise HTTPException(status_code=400, detail="No query parameters provided")
+            return await get_event_by_id(event_id)
+        if board_id:
+            return await get_events_by_board_id(board_id)
+        return []
     except ValidationError as e:
         logger.error(f"Failed validation: {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
@@ -49,7 +42,7 @@ async def get_events_endpoint(
 @event_routes.post("/", response_model=EventRead)
 async def create_event_endpoint(event: EventCreate):
     try:
-        event_read: EventRead = await create_event(event)
+        return await create_event(event)
     except ValidationError as e:
         logger.error(f"Failed to create event: validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
@@ -57,16 +50,13 @@ async def create_event_endpoint(event: EventCreate):
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
-    return event_read
-
 
 @event_routes.delete("/", status_code=204)
 async def delete_event_endpoint(event_id: str = Query(...)):
     try:
         await delete_event(event_id)
     except NotFoundError as e:
-        logger.error(str(e))
-        raise HTTPException(status_code=404, detail=str(e)) from e
+        logger.info(str(e))
     except ValidationError as e:
         logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e

@@ -59,17 +59,13 @@ async def get_user_profile_endpoint(
     user_profile_id: str = Query(...),
 ) -> UserProfileRead:
     try:
-        user_profile = await get_user_profile_by_id(user_profile_id)
-        if user_profile is None:
-            raise HTTPException(status_code=404, detail="User profile not found")
+        return await get_user_profile_by_id(user_profile_id)
     except ValidationError as e:
         logger.error(f"Failed validation: {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
     except Exception as e:
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
-
-    return user_profile
 
 
 @user_routes.get("/", response_model=UserRead)
@@ -79,15 +75,10 @@ async def get_user_endpoint(
 ) -> UserRead:
     try:
         if user_id:
-            user = await get_user_by_id(user_id)
-            if user is None:
-                raise HTTPException(status_code=404, detail="User not found")
-        elif user_name:
-            user = await get_user_by_name(user_name)
-            if user is None:
-                raise HTTPException(status_code=404, detail="User not found")
-        else:
-            raise HTTPException(status_code=400, detail="No query parameters provided")
+            return await get_user_by_id(user_id)
+        if user_name:
+            return await get_user_by_name(user_name)
+        return []
     except ValidationError as e:
         logger.error(f"Failed validation: {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
@@ -95,16 +86,13 @@ async def get_user_endpoint(
         logger.error(f"Ask Thades what happened I guess. {str(e)}")
         raise HTTPException(status_code=500, detail="Server go boom :sad-emoji:") from e
 
-    return user
-
 
 @user_routes.delete("/", status_code=204)
 async def delete_user_endpoint(user_id: str = Query(...)):
     try:
         await delete_user(user_id)
     except NotFoundError as e:
-        logger.error(str(e))
-        raise HTTPException(status_code=404, detail=str(e)) from e
+        logger.info(str(e))
     except ValidationError as e:
         logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
@@ -118,8 +106,7 @@ async def delete_user_profile_endpoint(user_profile_id: str = Query(...)):
     try:
         await delete_user_profile(user_profile_id)
     except NotFoundError as e:
-        logger.error(str(e))
-        raise HTTPException(status_code=404, detail=str(e)) from e
+        logger.info(str(e))
     except ValidationError as e:
         logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e

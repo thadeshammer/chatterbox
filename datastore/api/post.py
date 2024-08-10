@@ -27,17 +27,10 @@ async def get_posts_endpoint(
 ) -> Union[PostRead, list[PostRead]]:
     try:
         if post_id:
-            post = await get_post_by_id(post_id)
-            if post is None:
-                raise HTTPException(status_code=404, detail="Post not found")
-            return post
-        elif category_id:
-            posts = await get_posts_by_category_id(category_id)
-            if not posts:
-                raise HTTPException(status_code=404, detail="Posts not found")
-            return posts
-        else:
-            raise HTTPException(status_code=400, detail="No query parameters provided")
+            return await get_post_by_id(post_id)
+        if category_id:
+            return await get_posts_by_category_id(category_id)
+        return []
     except ValidationError as e:
         logger.error(f"Failed validation: {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
@@ -66,7 +59,6 @@ async def delete_post_endpoint(post_id: str = Query(...)):
         await delete_post(post_id)
     except NotFoundError as e:
         logger.error(str(e))
-        raise HTTPException(status_code=404, detail=str(e)) from e
     except ValidationError as e:
         logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e

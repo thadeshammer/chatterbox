@@ -20,11 +20,14 @@ from datastore.queries import (
     create_comment,
     create_post,
     create_user,
+    get_all_boards,
     get_boards_created_by_user_id,
     get_categories_by_board_id,
     get_comments_by_post_id,
     get_comments_by_user_id,
 )
+
+# pylint: disable=unused-argument
 
 
 async def test_get_categories_by_board_id(async_session):
@@ -150,3 +153,39 @@ async def test_get_comments_by_post_id_and_user_id(
     users_contents = [comment.content for comment in users_comments]
     assert "First comment" in users_contents
     assert "Second comment" in users_contents
+
+
+async def test_get_all_boards(async_session):
+    user_create = UserCreate(name="test_name", email="testemail@example.com")
+    user: UserRead = await create_user(user_create)
+
+    board_create = BoardCreate(
+        name="one",
+        description="describing things",
+        user_id=user.id,
+    )
+    board: BoardRead = await create_board(board_create)
+    assert board.name == board_create.name
+
+    board_create = BoardCreate(
+        name="two",
+        description="describing things",
+        user_id=user.id,
+    )
+    board: BoardRead = await create_board(board_create)
+    assert board.name == board_create.name
+
+    boards = await get_all_boards(user.id)
+
+    names = [board.name for board in boards]
+
+    assert "one" in names
+    assert "two" in names
+
+
+async def test_get_all_boards_when_no_boards(async_session):
+    user_create = UserCreate(name="test_name", email="testemail@example.com")
+    user: UserRead = await create_user(user_create)
+
+    boards = await get_all_boards(user.id)
+    assert len(boards) == 0

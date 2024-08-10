@@ -27,20 +27,11 @@ async def get_boards_endpoint(
     user_id: Optional[str] = Query(None),
 ) -> Union[BoardRead, list[BoardRead]]:
     try:
-        if board_id:
-            board = await get_board_by_id(board_id)
-            if board is None:
-                raise HTTPException(status_code=404, detail="Board not found")
-            return board
-        if user_id:
-            boards = await get_boards_created_by_user_id(user_id)
-            if not boards:
-                raise HTTPException(status_code=404, detail="Boards not found")
-            return boards
-        boards = await get_all_boards()
-        if not boards:
-            raise HTTPException(status_code=404, detail="Boards not found")
-        return boards
+        if board_id is not None:
+            return await get_board_by_id(board_id)
+        if user_id is not None:
+            return await get_boards_created_by_user_id(user_id)
+        return await get_all_boards()
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
@@ -68,8 +59,7 @@ async def delete_board_endpoint(board_id: str = Query(...)):
     try:
         await delete_board(board_id)
     except NotFoundError as e:
-        logger.error(str(e))
-        raise HTTPException(status_code=404, detail=str(e)) from e
+        logger.info(str(e))
     except ValidationError as e:
         logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e
