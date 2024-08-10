@@ -10,10 +10,15 @@ from .datastore import create_app
 logger = logging.getLogger(__name__)
 app = create_app()
 
+EXCLUDED_PATHS = ["/docs", "/openapi.json"]
+
 
 @app.middleware("http")
 async def log_request(request: Request, call_next):
-    client_ip = request.client.host
+    # Calls to the docs endpoint aren't necessary to log here
+    if request.url.path in EXCLUDED_PATHS:
+        return await call_next(request)
+
     query_params = str(request.url.query)
     parameters = query_params
 
@@ -26,9 +31,7 @@ async def log_request(request: Request, call_next):
         request._body = body  # pylint: disable=protected-access
 
     async with async_session() as session:
-        action_log = ActionLog(
-            endpoint=request.url.path, parameters=parameters, client_ip=client_ip
-        )
+        action_log = ActionLog(endpoint=request.url.path, parameters=parameters)
         session.add(action_log)
         await session.commit()
         await session.refresh(action_log)

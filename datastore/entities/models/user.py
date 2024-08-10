@@ -32,6 +32,9 @@ class UserCreate(SQLModel):
     def validate_fields(cls, data: "UserCreate") -> "UserCreate":
         data.name = data.name.lower()
         data.email = data.email.lower()
+        if data.nickname is None:
+            data.nickname = data.name
+
         return data
 
     model_config = cast(
