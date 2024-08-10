@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 @invite_routes.post("/", response_model=InviteRead)
 async def create_invite_endpoint(invite: InviteCreate):
-    logger.debug(f"{invite=}")
     try:
         return await create_invite(invite)
     except ValidationError as e:

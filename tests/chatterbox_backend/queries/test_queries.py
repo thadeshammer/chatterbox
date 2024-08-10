@@ -13,6 +13,8 @@ from chatterbox_backend.entities.models import (
     CommentRead,
     EventCreate,
     EventRead,
+    InviteCreate,
+    InviteRead,
     PostCreate,
     PostRead,
     UserCreate,
@@ -26,6 +28,7 @@ from chatterbox_backend.queries import (
     create_category,
     create_comment,
     create_event,
+    create_invite,
     create_post,
     create_user,
     create_user_profile,
@@ -46,6 +49,30 @@ async def test_create_user(async_session):  # pylint: disable=unused-argument
     user_create = UserCreate(name="test_name", email="testemail@example.com")
     user_read: UserRead = await create_user(user_create)
     assert user_read.name == user_create.name
+
+
+@pytest.mark.asyncio
+async def test_create_invite(async_session):  # pylint: disable=unused-argument
+    user_create = UserCreate(name="test_name", email="testemail@example.com")
+    user_read: UserRead = await create_user(user_create)
+
+    board_create = BoardCreate(
+        name="test_name",
+        description="describing things",
+        user_id=user_read.id,
+    )
+    board_read: BoardRead = await create_board(board_create)
+
+    invite_create = InviteCreate(
+        email="someemail@example.com",
+        issuing_user_id=user_read.id,
+        board_id=board_read.id,
+    )
+    invite_read: InviteRead = await create_invite(invite_create)
+
+    assert invite_read.email == "someemail@example.com"
+    assert invite_read.board_id == board_read.id
+    assert invite_read.issuing_user_id == user_read.id
 
 
 @pytest.mark.asyncio
