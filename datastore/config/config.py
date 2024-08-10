@@ -17,7 +17,7 @@ class Config:
 
     server_start_time = datetime.now(timezone.utc)
 
-    PORT = 443
+    PORT = 8000
     ENVIRONMENT = os.getenv("ENVIRONMENT", "pytest").lower()
     LOGGING_CONFIG_FILE: str = os.getenv(
         "LOG_CFG", "./datastore/logging_config_pytest.yaml"

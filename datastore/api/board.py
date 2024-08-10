@@ -6,13 +6,7 @@ from typing import Optional, Union
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import ValidationError
 
-from datastore.entities.models import (
-    BoardCreate,
-    BoardRead,
-    MembershipCreate,
-    MembershipRead,
-    UserRole,
-)
+from datastore.entities.models import BoardCreate, BoardRead, MembershipCreate, UserRole
 from datastore.exceptions import NotFoundError
 from datastore.queries import (
     create_board,
