@@ -4,7 +4,7 @@ import ssl
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .api import (
@@ -18,7 +18,7 @@ from .api import (
     user_routes,
 )
 from .config import Config
-from .db import async_create_all_tables, async_session
+from .db import async_create_all_tables
 from .entities.models import (  # pylint: disable=unused-import
     ActionLog,
     Board,
@@ -68,6 +68,8 @@ async def lifespan(
 
 def create_app() -> FastAPI:
     fastapi_app = FastAPI(lifespan=lifespan)
+
+    # For CORS
     origins = ["http://localhost:9001"]
     fastapi_app.add_middleware(
         CORSMiddleware,
@@ -76,6 +78,8 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # We don't need fastapi debug logs
     fastapi_app.debug = False
 
     fastapi_app.include_router(board_routes, prefix="/board")
