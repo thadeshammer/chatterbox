@@ -5,11 +5,11 @@ services:
     environment:
       POSTGRES_DB: chatterboxdb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD_FILE: /run/secrets/datastore/postgres_superuser_password.txt
-      POSTGRES_INITDB_ARGS: "--username=postgres --pwfile=/run/secrets/datastore/postgres_superuser_password.txt"
+      POSTGRES_PASSWORD_FILE: /run/secrets/chatterbox_backend/postgres_superuser_password.txt
+      POSTGRES_INITDB_ARGS: "--username=postgres --pwfile=/run/secrets/chatterbox_backend/postgres_superuser_password.txt"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./secrets/datastore/:/run/secrets/datastore
+      - ./secrets/chatterbox_backend/:/run/secrets/chatterbox_backend
       - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     ports:
       - "5432:5432"
@@ -25,11 +25,11 @@ services:
     environment:
       POSTGRES_DB: chatterbox_testdb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD_FILE: /run/secrets/datastore/test_postgres_superuser_password.txt
-      POSTGRES_INITDB_ARGS: "--username=postgres --pwfile=/run/secrets/datastore/test_postgres_superuser_password.txt"
+      POSTGRES_PASSWORD_FILE: /run/secrets/chatterbox_backend/test_postgres_superuser_password.txt
+      POSTGRES_INITDB_ARGS: "--username=postgres --pwfile=/run/secrets/chatterbox_backend/test_postgres_superuser_password.txt"
     volumes:
       - test_postgres_data:/var/lib/postgresql/data
-      - ./secrets/datastore/:/run/secrets/datastore
+      - ./secrets/chatterbox_backend/:/run/secrets/chatterbox_backend
       - ./init-test-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     ports:
       - "5433:5432"
@@ -39,12 +39,12 @@ services:
       timeout: 10s
       retries: 5
 
-  datastore:
+  chatterbox_backend:
     build:
       context: .
-      dockerfile: Dockerfile-datastore
+      dockerfile: Dockerfile-chatterbox-backend
     command: >
-      uvicorn datastore.__init__:app
+      uvicorn chatterbox_backend.__init__:app
       --host 0.0.0.0
       --port 8000
       --ssl-keyfile /run/secrets/cert/key.pem
@@ -52,19 +52,19 @@ services:
     restart: "no"
     environment:
       ENVIRONMENT: prod
-      LOG_CFG: /app/datastore/logging_config.yaml
+      LOG_CFG: /app/chatterbox_backend/logging_config.yaml
       LOCAL_TIMEZONE: America/New_York
       CERT_PASSKEY: ${CERT_PASSKEY}
       CERT_PATH: /run/secrets/certs/cert.pem
       KEY_PATH: /run/secrets/certs/key.pem
       DATABASE_PREFIX: postgresql+asyncpg://
       DATABASE_NAME: chatterboxdb
-      DATABASE_USER_FILE: /run/secrets/datastore/postgres_user.txt
-      DATABASE_USER_PASSWORD_FILE: /run/secrets/datastore/postgres_password.txt
+      DATABASE_USER_FILE: /run/secrets/chatterbox_backend/postgres_user.txt
+      DATABASE_USER_PASSWORD_FILE: /run/secrets/chatterbox_backend/postgres_password.txt
       DB_SERVICE_NAME: postgres
       DB_PORT: 5432
       TEST_DB_NAME: chatterbox_testdb
-      TEST_DATABASE_USER_FILE: /run/secrets/datastore/test_postgres_user.txt
+      TEST_DATABASE_USER_FILE: /run/secrets/chatterbox_backend/test_postgres_user.txt
       TEST_DB_SERVICE_NAME: test-postgres
       TEST_DB_PORT: 5433
       REDIS_HOST: redis

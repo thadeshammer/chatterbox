@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY chatterbox_backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY chatterbox_backend/ ./chatterbox_backend
+COPY secrets/chatterbox_backend /run/secrets/chatterbox_backend
+COPY secrets/cert /run/secrets/cert
+
+EXPOSE 8000
