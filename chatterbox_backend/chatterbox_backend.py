@@ -12,6 +12,7 @@ from .api import (
     category_routes,
     comment_routes,
     event_routes,
+    invite_routes,
     membership_routes,
     post_routes,
     server_routes,
@@ -82,13 +83,14 @@ def create_app() -> FastAPI:
     # We don't need fastapi debug logs
     fastapi_app.debug = False
 
-    fastapi_app.include_router(board_routes, prefix="/board")
-    fastapi_app.include_router(category_routes, prefix="/category")
-    fastapi_app.include_router(comment_routes, prefix="/comment")
-    fastapi_app.include_router(event_routes, prefix="/event")
-    fastapi_app.include_router(membership_routes, prefix="/membership")
-    fastapi_app.include_router(post_routes, prefix="/post")
     fastapi_app.include_router(user_routes, prefix="/user")
+    fastapi_app.include_router(board_routes, prefix="/board")
+    fastapi_app.include_router(membership_routes, prefix="/membership")
+    fastapi_app.include_router(invite_routes, prefix="/invite")
+    fastapi_app.include_router(category_routes, prefix="/category")
+    fastapi_app.include_router(event_routes, prefix="/event")
+    fastapi_app.include_router(post_routes, prefix="/post")
+    fastapi_app.include_router(comment_routes, prefix="/comment")
     fastapi_app.include_router(server_routes)
 
     return fastapi_app

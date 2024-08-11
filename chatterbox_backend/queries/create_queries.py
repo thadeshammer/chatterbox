@@ -1,21 +1,22 @@
-# TODO remove this pylint disable after initial dev push
-# pylint: disable=unused-import
+from sqlmodel import select
+
 from chatterbox_backend.db import async_session
 from chatterbox_backend.entities.models import (
     Board,
     BoardCreate,
     BoardRead,
-    BoardUpdate,
     Category,
     CategoryCreate,
     CategoryRead,
-    CategoryUpdate,
     Comment,
     CommentCreate,
     CommentRead,
     Event,
     EventCreate,
     EventRead,
+    Invite,
+    InviteCreate,
+    InviteRead,
     Membership,
     MembershipCreate,
     MembershipRead,
@@ -28,8 +29,9 @@ from chatterbox_backend.entities.models import (
     UserProfileCreate,
     UserProfileRead,
     UserRead,
-    UserUpdate,
+    UserRole,
 )
+from chatterbox_backend.exceptions import NotFoundError
 
 
 async def create_user(user_create: UserCreate) -> UserRead:
@@ -42,13 +44,66 @@ async def create_user(user_create: UserCreate) -> UserRead:
     return response
 
 
-async def create_board(board_create: BoardCreate) -> BoardRead:
+async def create_board(board_create: BoardCreate) -> tuple[BoardRead, MembershipRead]:
     async with async_session() as session:
+        user_query = select(User).where(
+            User.id == board_create.user_id, User.deleted == False
+        )
+        user: User = (await session.execute(user_query)).unique().scalar_one_or_none()
+        if user is None:
+            raise NotFoundError("Issuing User not found.")
+
         board_data = Board(**board_create.model_dump())
         session.add(board_data)
         await session.commit()
         await session.refresh(board_data)
-        response = BoardRead.model_validate(board_data)
+
+        membership_create = MembershipCreate(
+            user_id=user.id, board_id=board_data.id, role=UserRole.ADMIN
+        )
+        membership_read = await create_membership(membership_create)
+
+        response = BoardRead.model_validate(board_data), membership_read
+    return response
+
+
+async def create_invite(invite_create: InviteCreate) -> InviteRead:
+    async with async_session() as session:
+        # screen for IntegrityErrors and surface meaningful error messages
+        board_query = select(Board).where(
+            Board.id == invite_create.board_id, Board.deleted == False
+        )
+        board: Board = (
+            (await session.execute(board_query)).unique().scalar_one_or_none()
+        )
+
+        if board is None:
+            raise NotFoundError("Board not found.")
+
+        user_query = select(User).where(
+            User.id == invite_create.issuing_user_id, User.deleted == False
+        )
+        user: User = (await session.execute(user_query)).unique().scalar_one_or_none()
+        if user is None:
+            raise NotFoundError("Issuing User not found.")
+
+        membership_query = select(Membership).where(
+            Membership.user_id == user.id,
+            Membership.board_id == board.id,
+            Membership.deleted == False,  # pylint: disable=singleton-comparison
+        )
+        membership: Membership = (
+            (await session.execute(membership_query)).unique().scalar_one_or_none()
+        )
+        if membership is None:
+            raise NotFoundError("Issuing User not a member of Board.")
+
+        # create the invite
+        invite_data = Invite(**invite_create.model_dump())
+        session.add(invite_data)
+        await session.commit()
+        await session.refresh(invite_data)
+        response = InviteRead.model_validate(invite_data)
     return response
 
 

@@ -58,7 +58,7 @@ async def test_delete_board(
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     category_create = CategoryCreate(
         name="test_name",
@@ -120,7 +120,7 @@ async def test_delete_comment(async_session):
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     category_create = CategoryCreate(
         name="test_category",
@@ -159,7 +159,7 @@ async def test_delete_event(async_session):
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     event_create = EventCreate(
         name="test_name",
@@ -186,7 +186,7 @@ async def test_delete_post(async_session):
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     category_create = CategoryCreate(
         name="test_category",
@@ -263,7 +263,7 @@ async def test_delete_category(async_session):
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     category_create = CategoryCreate(
         name="test_name",

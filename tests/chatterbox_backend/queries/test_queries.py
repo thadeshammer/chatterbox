@@ -13,6 +13,8 @@ from chatterbox_backend.entities.models import (
     CommentRead,
     EventCreate,
     EventRead,
+    InviteCreate,
+    InviteRead,
     PostCreate,
     PostRead,
     UserCreate,
@@ -26,6 +28,7 @@ from chatterbox_backend.queries import (
     create_category,
     create_comment,
     create_event,
+    create_invite,
     create_post,
     create_user,
     create_user_profile,
@@ -46,6 +49,32 @@ async def test_create_user(async_session):  # pylint: disable=unused-argument
     user_create = UserCreate(name="test_name", email="testemail@example.com")
     user_read: UserRead = await create_user(user_create)
     assert user_read.name == user_create.name
+
+
+@pytest.mark.asyncio
+async def test_create_invite(async_session):  # pylint: disable=unused-argument
+    user_create = UserCreate(name="test_name", email="testemail@example.com")
+    user_read: UserRead = await create_user(user_create)
+
+    board_create = BoardCreate(
+        name="test_name",
+        description="describing things",
+        user_id=user_read.id,
+    )
+    board_read, membership_read = await create_board(board_create)
+
+    assert board_read.user_id == membership_read.user_id
+
+    invite_create = InviteCreate(
+        email="someemail@example.com",
+        issuing_user_id=user_read.id,
+        board_id=board_read.id,
+    )
+    invite_read: InviteRead = await create_invite(invite_create)
+
+    assert invite_read.email == "someemail@example.com"
+    assert invite_read.board_id == board_read.id
+    assert invite_read.issuing_user_id == user_read.id
 
 
 @pytest.mark.asyncio
@@ -87,7 +116,7 @@ async def test_create_and_update_board(
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
     assert board_read.name == board_create.name
 
     board_update = BoardUpdate(name="new_name", description="better describing things")
@@ -109,7 +138,7 @@ async def test_create_and_update_category(
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     category_create = CategoryCreate(
         name="test category name",
@@ -136,7 +165,7 @@ async def test_create_event(async_session):  # pylint: disable=unused-argument
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     event_create = EventCreate(
         name="test_name",
@@ -159,7 +188,7 @@ async def test_create_post(async_session):  # pylint: disable=unused-argument
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     category_create = CategoryCreate(
         name="test_name",
@@ -189,7 +218,7 @@ async def test_create_comment(async_session):  # pylint: disable=unused-argument
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     category_create = CategoryCreate(
         name="test_name",
@@ -226,7 +255,7 @@ async def test_get_board_by_id(async_session):  # pylint: disable=unused-argumen
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     fetched_board = await get_board_by_id(board_read.id)
     assert fetched_board is not None
@@ -244,7 +273,7 @@ async def test_get_category_by_id(async_session):  # pylint: disable=unused-argu
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     category_create = CategoryCreate(
         name="test_name",
@@ -268,7 +297,7 @@ async def test_get_comment_by_id(async_session):  # pylint: disable=unused-argum
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     category_create = CategoryCreate(
         name="test_name",
@@ -307,7 +336,7 @@ async def test_get_event_by_id(async_session):  # pylint: disable=unused-argumen
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     event_date = date.today()
     event_create = EventCreate(
@@ -334,7 +363,7 @@ async def test_get_post_by_id(async_session):  # pylint: disable=unused-argument
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     category_create = CategoryCreate(
         name="test_name",

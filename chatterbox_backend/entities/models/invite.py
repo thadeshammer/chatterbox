@@ -9,7 +9,7 @@ from sqlmodel._compat import SQLModelConfig
 from chatterbox_backend.entities.ids import EntityPrefix, make_entity_id
 
 if TYPE_CHECKING:
-    from . import User
+    from . import Board, User
 
 
 class InviteCreate(SQLModel):
@@ -33,7 +33,7 @@ class Invite(InviteBase, table=True):
     __tablename__ = "invites"
 
     id: str = Field(
-        default_factory=lambda: make_entity_id(EntityPrefix.Invite),
+        default_factory=lambda: make_entity_id(EntityPrefix.INVITE),
         primary_key=True,
     )
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
