@@ -259,6 +259,22 @@ async def get_user_profile_by_id(
     return response
 
 
+async def get_membership(
+    user_id: str, board_id: str, show_deleted: bool = False
+) -> list[MembershipRead]:
+    async with async_session() as session:
+        query = select(Membership).where(
+            Membership.user_id == user_id, Membership.board_id == board_id
+        )
+        if show_deleted is False:
+            query = query.where(not_(Membership.deleted))
+        results: list[Membership] = (
+            (await session.execute(query)).unique().scalars().all()
+        )
+        response = [MembershipRead.model_validate(result) for result in results]
+    return response
+
+
 async def get_memberships_by_board_id(
     board_id: str, show_deleted: bool = False
 ) -> list[MembershipRead]:

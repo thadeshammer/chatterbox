@@ -34,6 +34,7 @@ from .get_queries import (
     get_invites_by_board_id,
     get_invites_by_email,
     get_invites_by_user_id,
+    get_membership,
     get_memberships_by_board_id,
     get_memberships_by_user_id,
     get_post_by_id,

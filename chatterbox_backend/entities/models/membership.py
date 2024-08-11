@@ -13,15 +13,40 @@ if TYPE_CHECKING:
 
 
 class UserRole(StrEnum):
-    NORMAL = "normal"
+    USER = "user"
     MODERATOR = "moderator"
     ADMIN = "admin"
+    SUPER_ADMIN = "super_admin"
+
+    def _role_index(self):
+        roles_order = ["user", "moderator", "admin", "super_admin"]
+        return roles_order.index(self.value)
+
+    def __lt__(self, other):
+        if isinstance(other, UserRole):
+            return self._role_index() < other._role_index()
+        return NotImplemented
+
+    def __gt__(self, other):
+        if isinstance(other, UserRole):
+            return self._role_index() > other._role_index()
+        return NotImplemented
+
+    def __le__(self, other):
+        if isinstance(other, UserRole):
+            return self._role_index() <= other._role_index()
+        return NotImplemented
+
+    def __ge__(self, other):
+        if isinstance(other, UserRole):
+            return self._role_index() >= other._role_index()
+        return NotImplemented
 
 
 class MembershipCreate(SQLModel):
     user_id: str = Field(..., nullable=False, foreign_key="users.id", index=True)
     board_id: str = Field(..., nullable=False, foreign_key="boards.id", index=True)
-    role: str = Field(default=UserRole.NORMAL, nullable=False)
+    role: str = Field(default=UserRole.USER, nullable=False)
 
     model_config = cast(
         SQLModelConfig,
