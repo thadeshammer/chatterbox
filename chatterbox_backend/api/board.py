@@ -6,16 +6,10 @@ from typing import Optional, Union
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import ValidationError
 
-from chatterbox_backend.entities.models import (
-    BoardCreate,
-    BoardRead,
-    MembershipCreate,
-    UserRole,
-)
+from chatterbox_backend.entities.models import BoardCreate, BoardRead
 from chatterbox_backend.exceptions import NotFoundError
 from chatterbox_backend.queries import (
     create_board,
-    create_membership,
     delete_board,
     get_all_boards,
     get_board_by_id,
@@ -49,7 +43,12 @@ async def get_boards_endpoint(
 @board_routes.post("/", response_model=dict)
 async def create_board_endpoint(board: BoardCreate):
     try:
-        board_read, membership_read = await create_board(board)
+        board_read, membership_read = await create_board(
+            board
+        )  # type: tuple[BoardRead, MembershipRead]
+    except NotFoundError as e:
+        logger.error(str(e))
+        raise HTTPException(status_code=400, detail=f"Creation failed. {str(e)}") from e
     except ValidationError as e:
         logger.error(f"Validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e

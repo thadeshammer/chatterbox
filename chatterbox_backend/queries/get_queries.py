@@ -8,10 +8,8 @@ from chatterbox_backend.db import async_session
 from chatterbox_backend.entities.models import (
     Board,
     BoardRead,
-    BoardUpdate,
     Category,
     CategoryRead,
-    CategoryUpdate,
     Comment,
     CommentRead,
     Event,
@@ -26,7 +24,6 @@ from chatterbox_backend.entities.models import (
     UserProfile,
     UserProfileRead,
     UserRead,
-    UserUpdate,
 )
 
 logger = logging.getLogger(__name__)

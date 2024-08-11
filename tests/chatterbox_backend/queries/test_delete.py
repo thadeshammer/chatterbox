@@ -4,7 +4,6 @@ import pytest
 
 from chatterbox_backend.entities.models import (
     BoardCreate,
-    BoardRead,
     CategoryCreate,
     CategoryRead,
     CommentCreate,
@@ -44,6 +43,7 @@ from chatterbox_backend.queries import (
 )
 
 # pylint: disable=unused-argument
+# pylint: disable=too-many-locals
 
 
 @pytest.mark.asyncio

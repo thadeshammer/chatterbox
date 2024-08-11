@@ -47,11 +47,12 @@ async def create_user(user_create: UserCreate) -> UserRead:
 async def create_board(board_create: BoardCreate) -> tuple[BoardRead, MembershipRead]:
     async with async_session() as session:
         user_query = select(User).where(
-            User.id == board_create.user_id, User.deleted == False
+            User.id == board_create.user_id,
+            User.deleted == False,  # pylint: disable=singleton-comparison
         )
         user: User = (await session.execute(user_query)).unique().scalar_one_or_none()
         if user is None:
-            raise NotFoundError("Issuing User not found.")
+            raise NotFoundError("User not found.")
 
         board_data = Board(**board_create.model_dump())
         session.add(board_data)

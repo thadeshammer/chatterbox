@@ -26,7 +26,7 @@ async def create_invite_endpoint(invite: InviteCreate):
         return await create_invite(invite)
     except NotFoundError as e:
         logger.error(f"Failed to create invite: {str(e)}")
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
     except ValidationError as e:
         logger.error(f"Failed to create user: validation error. {str(e)}")
         raise HTTPException(status_code=400, detail="Failed validation.") from e

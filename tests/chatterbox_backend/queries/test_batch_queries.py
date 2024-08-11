@@ -4,7 +4,6 @@ import pytest
 
 from chatterbox_backend.entities.models import (
     BoardCreate,
-    BoardRead,
     CategoryCreate,
     CategoryRead,
     CommentCreate,
