@@ -39,7 +39,7 @@ async def test_get_categories_by_board_id(async_session):
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
     assert board_read.name == board_create.name
 
     tasks = []
@@ -72,7 +72,7 @@ async def test_get_boards_created_by_user_id(async_session):
         description="describing things",
         user_id=user.id,
     )
-    board: BoardRead = await create_board(board_create)
+    board, _ = await create_board(board_create)
     assert board.name == board_create.name
 
     board_create = BoardCreate(
@@ -80,7 +80,7 @@ async def test_get_boards_created_by_user_id(async_session):
         description="describing things",
         user_id=user.id,
     )
-    board: BoardRead = await create_board(board_create)
+    board, _ = await create_board(board_create)
     assert board.name == board_create.name
 
     boards = await get_boards_created_by_user_id(user.id)
@@ -103,7 +103,7 @@ async def test_get_comments_by_post_id_and_user_id(
         description="describing things",
         user_id=user_read.id,
     )
-    board_read: BoardRead = await create_board(board_create)
+    board_read, _ = await create_board(board_create)
 
     category_create = CategoryCreate(
         name="test_name",
@@ -144,8 +144,6 @@ async def test_get_comments_by_post_id_and_user_id(
     contents = [comment.content for comment in comments]
     assert "First comment" in contents
     assert "Second comment" in contents
-    # assert comments[0].content == "First comment"
-    # assert comments[1].content == "Second comment"
 
     users_comments = await get_comments_by_user_id(user_read.id)
     assert len(users_comments) == 2
@@ -163,7 +161,7 @@ async def test_get_all_boards(async_session):
         description="describing things",
         user_id=user.id,
     )
-    board: BoardRead = await create_board(board_create)
+    board, _ = await create_board(board_create)
     assert board.name == board_create.name
 
     board_create = BoardCreate(
@@ -171,7 +169,7 @@ async def test_get_all_boards(async_session):
         description="describing things",
         user_id=user.id,
     )
-    board: BoardRead = await create_board(board_create)
+    board, _ = await create_board(board_create)
     assert board.name == board_create.name
 
     boards = await get_all_boards(user.id)
