@@ -4,7 +4,6 @@ import pytest
 
 from chatterbox_backend.entities.models import (
     BoardCreate,
-    BoardRead,
     BoardUpdate,
     CategoryCreate,
     CategoryRead,
@@ -23,6 +22,7 @@ from chatterbox_backend.entities.models import (
     UserRead,
     UserUpdate,
 )
+from chatterbox_backend.exceptions import NotFoundError
 from chatterbox_backend.queries import (
     create_board,
     create_category,
@@ -75,6 +75,84 @@ async def test_create_invite(async_session):  # pylint: disable=unused-argument
     assert invite_read.email == "someemail@example.com"
     assert invite_read.board_id == board_read.id
     assert invite_read.issuing_user_id == user_read.id
+
+
+@pytest.mark.asyncio
+async def test_create_invite_board_not_found(
+    async_session,
+):  # pylint: disable=unused-argument
+    user_create = UserCreate(name="test_name", email="testemail@example.com")
+    user_read: UserRead = await create_user(user_create)
+
+    non_existent_board_id = "non-existent-board-id"
+
+    invite_create = InviteCreate(
+        email="someemail@example.com",
+        issuing_user_id=user_read.id,
+        board_id=non_existent_board_id,
+    )
+
+    with pytest.raises(NotFoundError, match="Board not found"):
+        await create_invite(invite_create)
+
+
+@pytest.mark.asyncio
+async def test_create_invite_user_not_found(
+    async_session,
+):  # pylint: disable=unused-argument
+    user_create = UserCreate(name="test_name", email="testemail@example.com")
+    user_read: UserRead = await create_user(user_create)
+
+    board_create = BoardCreate(
+        name="test_name",
+        description="describing things",
+        user_id=user_read.id,
+    )
+    board_read, _ = await create_board(board_create)
+
+    non_existent_user_id = "non-existent-user-id"
+
+    invite_create = InviteCreate(
+        email="someemail@example.com",
+        issuing_user_id=non_existent_user_id,
+        board_id=board_read.id,
+    )
+
+    with pytest.raises(NotFoundError, match="Issuing User not found"):
+        await create_invite(invite_create)
+
+
+@pytest.mark.asyncio
+async def test_create_invite_user_not_a_member(
+    async_session,
+):  # pylint: disable=unused-argument
+    member_user_create = UserCreate(
+        name="board_creator_boi", email="member_email@example.com"
+    )
+    member_user_read: UserRead = await create_user(member_user_create)
+
+    board_create = BoardCreate(
+        name="test_name",
+        description="describing things",
+        user_id=member_user_read.id,
+    )
+    board_read, _ = await create_board(board_create)
+
+    different_user_create = UserCreate(
+        name="some_plebe", email="some_plebe_email@example.com"
+    )
+    different_user_read: UserRead = await create_user(different_user_create)
+
+    assert different_user_read.id != member_user_read.id
+
+    invite_create = InviteCreate(
+        email="rando@example.com",
+        issuing_user_id=different_user_read.id,
+        board_id=board_read.id,
+    )
+
+    with pytest.raises(NotFoundError, match="Issuing User not a member of Board"):
+        await create_invite(invite_create)
 
 
 @pytest.mark.asyncio
