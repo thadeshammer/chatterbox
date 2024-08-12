@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { api } from '../boot/axios'
 
 export const useCategoryStore = defineStore('category', {
   state: () => ({
@@ -8,14 +9,22 @@ export const useCategoryStore = defineStore('category', {
     isLoggedIn: (state) => { if (state.user === null) { return false} else { return true }},
   },
   actions: {
-    create(body) {
+    async create(body) {
       /*{
         "name": "string",
         "description": "string",
         "user_id": "string",
         "board_id": "string"
       }*/
-      var good = api.post("/create/category", body)
+      var good = await api.post("/category", body)
+    },
+    async get(board) {
+      var good = await api.get("/category", { params: { board_id: board.id }})
+      if (!good) {
+        console.log(good)
+        return
+      }
+      this.categories = good.data
     }
   },
 });

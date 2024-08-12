@@ -67,6 +67,7 @@ export const useBoardStore = defineStore('board', {
       var good = await api.get("/board")
       if (!good) {
         console.error(good)
+        this.boards = []
         return
       }
       this.boards = good.data
