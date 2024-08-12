@@ -63,7 +63,7 @@ function getBoards() {
 async function boardNav(board) {
   await categoryStore.get(board)
   if (categoryStore.categories.length > 0) {
-    var path = { path: '/board/' + board.name + '/category/' + categories[0].name }
+    var path = { path: '/board/' + board.name + '/category/' + categoryStore.categories[0].name }
     router.push(path)
   }
 }

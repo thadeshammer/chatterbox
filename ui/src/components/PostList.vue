@@ -1,9 +1,9 @@
 <template>
   <div class="q-pa-md q-gutter-md">
     <q-list bordered class="rounded-borders">
-      <q-item-label header>{{ category.name }}</q-item-label>
+      <q-item-label header>{{ route.params.category.name }}</q-item-label>
 
-      <q-item clickable v-ripple v-for="post in category.posts" @click="postNav(post)">
+      <q-item clickable v-ripple v-for="post in postStore.posts" @click="postNav(post)">
         <q-item-section avatar>
           <q-avatar>
             <img src="https://cdn.quasar.dev/img/avatar2.jpg">
@@ -11,9 +11,9 @@
         </q-item-section>
 
         <q-item-section>
-          <q-item-label lines="1">{{ post.title }}</q-item-label>
+          <q-item-label lines="1">{{ post.name }}</q-item-label>
           <q-item-label caption lines="2">
-            {{ post.body }}
+            {{ post.content }}
           </q-item-label>
         </q-item-section>
 
@@ -28,18 +28,15 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useBoardStore } from '../stores/board'
+import { usePostStore } from 'src/stores/post';
 
+const postStore = usePostStore()
 const router = useRouter()
-
-const boardStore = useBoardStore()
 const route = useRoute()
-const category = computed(() => { return boardStore.categoryById(route.params.category)} )
 
 function postNav(post) {
-  var path = { path: '/category/' + this.category.id + '/' + post.id + "/post/" + post.urlEscaped }
+  var path = { path: '/category/' + route.params.category + "/post/" + post.id }
   router.push(path)
 }
 </script>
