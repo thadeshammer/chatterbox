@@ -15,25 +15,28 @@ import PostList from '../components/PostList.vue'
 import { useCategoryStore } from 'src/stores/category'
 import { useBoardStore } from 'src/stores/board'
 import { usePostStore } from 'src/stores/post'
+import urlUtil from 'src/utilities/url-util'
 
 const categoryStore = useCategoryStore()
 const boardStore = useBoardStore()
 const postStore = usePostStore()
 const route = useRoute()
 const isCreatePost = ref(false)
+const categoryDecode = urlUtil.urlDecode(route.params.category)
+const boardDecode = urlUtil.urlDecode(route.params.board)
 init()
 watch(
     () => route.params.category,
     (newId, oldId) => {
-      category = categoryStore.getByName(route.params.category)
+      category = categoryStore.getByName(categoryDecode)
     }
   )
 function createPost() {
   var post = {
     title: postStore.createPost.title,
     body: postStore.createPost.body,
-    category_id: categoryStore.getByName(route.params.category).id,
-    board_id: boardStore.getByName(route.params.board).id
+    category_id: categoryStore.getByName(categoryDecode).id,
+    board_id: boardStore.getByName(boardDecode).id
   }
   postStore.create(post)
   this.isCreatePost = false
@@ -41,11 +44,9 @@ function createPost() {
 
 async function init() {
   if (categoryStore.categories.length === 0) {
-      await categoryStore.get(boardStore.getByName(route.params.board))
-      console.log("before: ",categoryStore.getByName(route.params.category))
+      await categoryStore.get(boardStore.getByName(boardDecode))
     }
-  console.log("after: ",categoryStore.getByName(route.params.category))
-  await postStore.get(categoryStore.getByName(route.params.category))
+  await postStore.get(categoryStore.getByName(categoryDecode))
 }
 defineOptions({
   name: 'CategoryPage'

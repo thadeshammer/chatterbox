@@ -3,6 +3,7 @@ import { api } from 'src/boot/axios';
 import { useAuthStore } from './auth';
 import { useCategoryStore } from './category';
 import { useLocalStorage } from '@vueuse/core'
+import urlUtil from '../utilities/url-util'
 
 export const useBoardStore = defineStore('board', {
   state: () => ({
@@ -52,6 +53,15 @@ export const useBoardStore = defineStore('board', {
         return
       }
       this.boards = good.data
+    },
+    async navigate(board) {
+      var enc = urlUtil.urlEncode(board.name)
+      await this.categoryStore.get(board)
+      var categoryEnc = urlUtil.urlEncode(this.categoryStore.categories[0].name)
+      if (this.categoryStore.categories.length > 0) {
+        var path = '/board/' + enc + '/category/' + categoryEnc
+        this.$router.push(path)
+      }
     },
     init() {
       if (this.categories != null) {

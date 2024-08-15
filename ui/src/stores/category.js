@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios'
 import { useLocalStorage } from '@vueuse/core'
+import urlUtil from 'src/utilities/url-util';
 
 export const useCategoryStore = defineStore('category', {
   state: () => ({
@@ -37,6 +38,12 @@ export const useCategoryStore = defineStore('category', {
         return
       }
       this.categories = good.data
+    },
+    navigate(boardName, categoryName) {
+      var boardEncode = urlUtil.urlEncode(boardName)
+      var categoryEncode = urlUtil.urlEncode(categoryName)
+      var path =  '/board/' + boardEncode + '/category/' + categoryEncode
+      this.$router.push(path)
     }
   },
 });

@@ -25,6 +25,9 @@ export const useAuthStore = defineStore('auth', {
       }*/
       body.nickname = body.name
       var good = await api.post("/user", body)
+      if (!good) {
+        console.error(good)
+      }
     },
     async getByName(name) {
       var good = await api.get("/user", { params: { user_name: name }})

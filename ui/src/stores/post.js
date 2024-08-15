@@ -2,14 +2,20 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios'
 import { useLocalStorage } from '@vueuse/core'
 import { useAuthStore } from './auth';
-import { useBoardStore } from './board';
+import urlUtil from 'src/utilities/url-util';
 
 export const usePostStore = defineStore('post', {
   state: () => ({
     posts: [],
-    createPost: useLocalStorage('createPost', {})
+    createPost: useLocalStorage('createPost', {}),
+    selectedPost: {}
   }),
   getters: {
+    getById: (state) => (id) => {
+      console.log(id)
+      var post = state.posts.find(x => x.id === id)
+      return post
+    }
   },
   actions: {
     async create(post) {
@@ -27,6 +33,9 @@ export const usePostStore = defineStore('post', {
         return
       }
     },
+    selectById(postId) {
+      this.selectedPost = this.posts.find(x => x.id === postId)
+    },
     async get(category) {
       if (!category) {
         console.warn("Category is: ", category)
@@ -38,6 +47,12 @@ export const usePostStore = defineStore('post', {
         return
       }
       this.posts = good.data
+    },
+    navigate(boardName, categoryName, postId) {
+      var categoryEncode = urlUtil.urlEncode(categoryName)
+      var boardDecode = urlUtil.urlEncode(boardName)
+      var path = "/board/" + boardDecode + "/category/" + categoryEncode + "/post/" + postId
+      this.$router.push(path)
     }
   },
 });

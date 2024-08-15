@@ -3,7 +3,7 @@
     <q-list bordered class="rounded-borders">
       <q-item-label header>{{ route.params.category.name }}</q-item-label>
 
-      <q-item clickable v-ripple v-for="post in postStore.posts" @click="postNav(post)">
+      <q-item clickable v-ripple v-for="post in postStore.posts" @click="postStore.navigate(route.params.board, route.params.category, post.id)">
         <q-item-section avatar>
           <q-avatar>
             <img src="https://cdn.quasar.dev/img/avatar2.jpg">
@@ -35,8 +35,4 @@ const postStore = usePostStore()
 const router = useRouter()
 const route = useRoute()
 
-function postNav(post) {
-  var path = { path: '/category/' + route.params.category + "/post/" + post.id }
-  router.push(path)
-}
 </script>

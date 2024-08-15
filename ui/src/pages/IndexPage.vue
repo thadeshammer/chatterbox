@@ -11,7 +11,7 @@
       <q-list bordered class="rounded-borders">
         <q-item-label header>Boards</q-item-label>
 
-        <q-item clickable v-ripple v-for="board in boardStore.boards" @click="boardNav(board)">
+        <q-item clickable v-ripple v-for="board in boardStore.boards" @click="boardStore.navigate(board)">
           <q-item-section avatar>
             <q-avatar>
               <img src="https://cdn.quasar.dev/img/avatar2.jpg">
@@ -57,14 +57,6 @@ function getBoards() {
   const authStore = useAuthStore()
   if (authStore.isLoggedIn) {
     boardStore.getAll()
-  }
-}
-
-async function boardNav(board) {
-  await categoryStore.get(board)
-  if (categoryStore.categories.length > 0) {
-    var path = { path: '/board/' + board.name + '/category/' + categoryStore.categories[0].name }
-    router.push(path)
   }
 }
 </script>
