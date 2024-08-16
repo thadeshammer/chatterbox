@@ -35,7 +35,7 @@ class Comment(CommentBase, table=True):
     __tablename__ = "comments"
 
     id: str = Field(
-        default_factory=lambda: make_entity_id(EntityPrefix.POST), primary_key=True
+        default_factory=lambda: make_entity_id(EntityPrefix.COMMENT), primary_key=True
     )
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
