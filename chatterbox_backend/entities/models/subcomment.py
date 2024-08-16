@@ -1,4 +1,9 @@
-# chatterbox_backend/entities/models/comment.py
+# chatterbox_backend/entities/models/subcomment.py
+"""Subcomment Data Model
+
+Subcomments are child-comments to one parent-comment; supports Discord or FB-style
+tangent threads within a single comment in a post.
+"""
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional, cast
 
@@ -8,13 +13,13 @@ from sqlmodel._compat import SQLModelConfig
 from chatterbox_backend.entities.ids import EntityPrefix, make_entity_id
 
 if TYPE_CHECKING:
-    from . import Post, User
+    from . import Comment, User
 
 
-class CommentCreate(SQLModel):
+class SubcommentCreate(SQLModel):
     content: str = Field(..., min_length=1, max_length=3000, nullable=False)
     user_id: str = Field(..., nullable=False, foreign_key="users.id", index=True)
-    post_id: str = Field(..., nullable=False, foreign_key="posts.id", index=True)
+    comment_id: str = Field(..., nullable=False, foreign_key="comment.id", index=True)
 
     model_config = cast(
         SQLModelConfig,
@@ -24,32 +29,30 @@ class CommentCreate(SQLModel):
     )
 
 
-class CommentBase(CommentCreate):
+class SubcommentBase(SubcommentCreate):
     approved: bool = Field(default=True)
     approved_at: Optional[datetime] = Field(default=None)
     deleted: bool = Field(default=False)
     deleted_at: Optional[datetime] = Field(default=None)
 
 
-class Comment(CommentBase, table=True):
-    __tablename__ = "comments"
+class Subcomment(SubcommentBase, table=True):
+    __tablename__ = "subcomments"
 
     id: str = Field(
-        default_factory=lambda: make_entity_id(EntityPrefix.COMMENT), primary_key=True
+        default_factory=lambda: make_entity_id(EntityPrefix.SUBCOMMENT),
+        primary_key=True,
     )
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
     user: "User" = Relationship(
-        back_populates="comments", sa_relationship_kwargs={"lazy": "subquery"}
+        back_populates="subcomments", sa_relationship_kwargs={"lazy": "subquery"}
     )
-    post: "Post" = Relationship(
-        back_populates="comments", sa_relationship_kwargs={"lazy": "subquery"}
-    )
-    subcomments: list["Subcomment"] = Relationship(
-        back_populates="comments", sa_relationship_kwargs={"lazy": "subquery"}
+    comment: "Comment" = Relationship(
+        back_populates="subcomments", sa_relationship_kwargs={"lazy": "subquery"}
     )
 
 
-class CommentRead(CommentBase):
+class SubcommentRead(SubcommentBase):
     id: str = Field(primary_key=True)
     created_at: datetime = Field()

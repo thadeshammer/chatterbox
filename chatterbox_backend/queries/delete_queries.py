@@ -39,6 +39,27 @@ async def delete_comment(comment_id: str):
         await session.refresh(comment_data)
 
 
+async def delete_subcomment(subcomment_id: str):
+    async with async_session() as session:
+        async with session.begin():
+            query = select(Comment).where(Comment.id == subcomment_id)
+            result = await session.execute(query)
+            subcomment_data = result.scalar_one_or_none()
+
+            if subcomment_data is None:
+                raise NotFoundError(f"No such entity: {subcomment_id}")
+            if subcomment_data.deleted:
+                raise ValueError(f"Comment already deleted: {subcomment_id}")
+
+            deleted_at = datetime.now()
+
+            subcomment_data.deleted = True
+            subcomment_data.deleted_at = deleted_at
+
+            await session.commit()
+        await session.refresh(subcomment_data)
+
+
 async def delete_invite(invite_id: str):
     async with async_session() as session:
         async with session.begin():

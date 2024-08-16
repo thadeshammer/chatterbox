@@ -23,6 +23,9 @@ from chatterbox_backend.entities.models import (
     Post,
     PostCreate,
     PostRead,
+    Subcomment,
+    SubcommentCreate,
+    SubcommentRead,
     User,
     UserCreate,
     UserProfile,
@@ -135,6 +138,16 @@ async def create_comment(comment_create: CommentCreate) -> CommentRead:
         await session.commit()
         await session.refresh(comment_data)
         response = CommentRead.model_validate(comment_data)
+    return response
+
+
+async def create_subcomment(subcomment_create: SubcommentCreate) -> SubcommentRead:
+    async with async_session() as session:
+        subcomment_data = Subcomment(**subcomment_create.model_dump())
+        session.add(subcomment_data)
+        await session.commit()
+        await session.refresh(subcomment_data)
+        response = SubcommentRead.model_validate(subcomment_data)
     return response
 
 

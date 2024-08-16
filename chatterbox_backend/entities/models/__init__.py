@@ -14,6 +14,7 @@ from .membership import (
     UserRole,
 )
 from .post import Post, PostCreate, PostRead
+from .subcomment import Subcomment, SubcommentCreate, SubcommentRead
 from .user import User, UserCreate, UserRead, UserUpdate
 from .user_profile import (
     UserProfile,

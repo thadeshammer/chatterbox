@@ -14,6 +14,7 @@ class EntityPrefix(StrEnum):
     MEMBERSHIP = "membership"
     PIN = "pin"
     POST = "post"
+    SUBCOMMENT = "subcomment"
     USER = "user"
     USERPROFILE = "userprofile"
 
