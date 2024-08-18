@@ -2,38 +2,24 @@
   <q-page>
     <div v-if="postStore.selectedPost" class="column">
       <div class="text-h3">{{ postStore.selectedPost.name }}</div>
-      <div>{{ postStore.selectedPost.content }}</div>
-      <q-btn @click="isComment = true" v-if="!isComment" label="Leave a Comment"/>
-      <q-input v-if="isComment" v-model="commentStore.createComment.content" label="Comment"/>
-      <div v-if="isComment">
-        <q-btn @click="commentStore.create(); isComment = false" label="Submit"/>
-        <q-btn @click="isComment = false" label="Back"/>
+      <Markdown :content="postStore.selectedPost.content"/>
+      <div>
+        <q-space/>
+        <q-btn @click="commentStore.isCreateComment = true" v-if="!commentStore.isCreateComment" label="Leave a Comment"/>
       </div>
-
-      <q-list bordered class="rounded-borders">
-      <q-item-label header>Comments</q-item-label>
-
-      <q-item clickable v-ripple v-for="comment in commentStore.comments">
-        <q-item-section avatar>
-          <q-avatar>
-            <img src="https://cdn.quasar.dev/img/avatar2.jpg">
-          </q-avatar>
-        </q-item-section>
-
-        <q-item-section>
-          <q-item-label caption lines="2">
-            {{ comment.content }}
-          </q-item-label>
-        </q-item-section>
-
-        <q-item-section side top>
-          1 min ago
-        </q-item-section>
-
-        <q-separator inset="item" />
-      </q-item>
-    </q-list>
+      <CommentCreate v-if="commentStore.isCreateComment"/>
     </div>
+    <q-list>
+      <q-card class="bg-grey-7" flat v-for="comment in commentStore.comments">
+        <q-card-section>
+          {{ comment.content }}
+        </q-card-section>
+        <q-card-actions>
+          <q-btn flat>Reply</q-btn>
+          <q-btn flat>View Replies (2)</q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-list>
   </q-page>
 </template>
 <script setup>
@@ -43,7 +29,9 @@ import { useCategoryStore } from 'src/stores/category';
 import { useBoardStore } from 'src/stores/board';
 import { useCommentStore } from 'src/stores/comment'
 import { ref, onBeforeMount } from 'vue'
+import Markdown from 'src/components/Markdown.vue';
 import urlUtil from 'src/utilities/url-util';
+import CommentCreate from 'src/components/CommentCreate.vue';
 
 const route = useRoute()
 const postStore = usePostStore()

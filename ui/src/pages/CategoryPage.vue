@@ -1,9 +1,12 @@
 <template>
   <q-page class="flex column">
-    <q-input v-if="isCreatePost" v-model="postStore.createPost.title" label="Title"/>
-    <q-input v-if="isCreatePost" v-model="postStore.createPost.body" label="Body"/>
-    <q-btn v-if="isCreatePost" @click="createPost()" label="Submit"/>
-    <q-btn v-if="!isCreatePost" @click="isCreatePost = true" label="Create Post"/>
+    <div class="text-h3">
+      {{ route.params.category }}
+    </div>
+    <div class="row">
+      <q-space/>
+      <q-btn @click="postStore.navigateCreate(route.params.board, route.params.category)" label="Create Post"/>
+    </div>
     <component :is="PostList"/>
   </q-page>
 </template>
@@ -23,24 +26,22 @@ const postStore = usePostStore()
 const route = useRoute()
 const isCreatePost = ref(false)
 const categoryDecode = urlUtil.urlDecode(route.params.category)
-const boardDecode = urlUtil.urlDecode(route.params.board)
+var boardDecode = urlUtil.urlDecode(route.params.board)
 init()
 watch(
-    () => route.params.category,
-    (newId, oldId) => {
-      category = categoryStore.getByName(categoryDecode)
-    }
-  )
-function createPost() {
-  var post = {
-    title: postStore.createPost.title,
-    body: postStore.createPost.body,
-    category_id: categoryStore.getByName(categoryDecode).id,
-    board_id: boardStore.getByName(boardDecode).id
+  () => route.params.category,
+  (newId, oldId) => {
+    categoryDecode = urlUtil.urlDecode(newId)
   }
-  postStore.create(post)
-  this.isCreatePost = false
-}
+)
+watch(
+  () => route.params.board,
+  (newId, oldId) => {
+    boardDecode = urlUtil.urlDecode(newId)
+    init()
+  }
+)
+
 
 async function init() {
   if (categoryStore.categories.length === 0) {

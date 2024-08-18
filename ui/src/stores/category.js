@@ -9,7 +9,6 @@ export const useCategoryStore = defineStore('category', {
     selectedCategory: useLocalStorage('selectedCategory', {})
   }),
   getters: {
-    isLoggedIn: (state) => { if (state.user === null) { return false} else { return true }},
     getById: (state) => (id) => state.categories.find(x => x.id === id),
     getByName: (state) => (name) => state.categories.find(x => x.name === name)
   },

@@ -7,7 +7,8 @@ import { api } from '../boot/axios'
 export const useCommentStore = defineStore('comment', {
   state: () => ({
     comments: [],
-    createComment: useLocalStorage('createComment', {})
+    createComment: useLocalStorage('createComment', {}),
+    isCreateComment: false
   }),
   getters: {
     isLoggedIn: (state) => { if (state.user === null) { return false} else { return true }},

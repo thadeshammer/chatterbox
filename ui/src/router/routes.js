@@ -4,6 +4,7 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('pages/IndexPage.vue') },
+      { path: '/board/:board/category/:category/post/create', component: () => import('pages/CreatePostPage.vue')},
       { path: '/board/:board/category/:category', component: () => import('pages/CategoryPage.vue')},
       { path: '/board/:board/category/:category/post/:postId', component: () => import('pages/PostPage.vue')}
     ]

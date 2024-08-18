@@ -21,8 +21,8 @@ export const usePostStore = defineStore('post', {
     async create(post) {
       var authStore = useAuthStore()
       var req = {
-        name: post.title,
-        content: post.body,
+        name: this.createPost.name,
+        content: this.createPost.content,
         user_id: authStore.user.id,
         board_id: post.board_id,
         category_id: post.category_id
@@ -52,6 +52,12 @@ export const usePostStore = defineStore('post', {
       var categoryEncode = urlUtil.urlEncode(categoryName)
       var boardDecode = urlUtil.urlEncode(boardName)
       var path = "/board/" + boardDecode + "/category/" + categoryEncode + "/post/" + postId
+      this.$router.push(path)
+    },
+    navigateCreate(boardName, categoryName) {
+      var categoryEncode = urlUtil.urlEncode(categoryName)
+      var boardDecode = urlUtil.urlEncode(boardName)
+      var path = "/board/" + boardDecode + "/category/" + categoryEncode + "/post/create"
       this.$router.push(path)
     }
   },

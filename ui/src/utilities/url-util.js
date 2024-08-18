@@ -1,8 +1,8 @@
 export default {
   urlEncode(inputString) {
-    return inputString.replace(" ", "-")
+    return inputString.replaceAll(" ", "-")
   },
   urlDecode(inputString) {
-    return inputString.replace("-", " ")
+    return inputString.replaceAll("-", " ")
   }
 }
