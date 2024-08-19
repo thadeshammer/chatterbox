@@ -16,6 +16,12 @@
                 <q-item-label>Log out</q-item-label>
               </q-item-section>
             </q-item>
+
+            <q-item clickable v-close-popup @click="boardStore.navigateAdmin()">
+              <q-item-section>
+                <q-item-label>Admin</q-item-label>
+              </q-item-section>
+            </q-item>
           </q-list>
         </q-btn-dropdown>
       </q-toolbar>
@@ -46,14 +52,15 @@
 <script setup>
 import { ref } from 'vue'
 import CategoryList from 'src/components/CategoryList.vue';
-import BoardIconList from 'src/components/BoardIconList.vue';
 import { useAuthStore } from 'src/stores/auth';
 import { useBoardStore } from 'src/stores/board';
+import { useRouter } from 'vue-router';
 import LoginPage from 'src/pages/LoginPage.vue';
 
 const leftDrawerOpen = ref(false)
 const rightDrawerOpen = ref(false)
-const board = useBoardStore()
+const boardStore = useBoardStore()
+const router = useRouter()
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
@@ -62,5 +69,5 @@ function toggleRightDrawer() {
 }
 
 const authStore = useAuthStore();
-board.init()
+boardStore.init()
 </script>

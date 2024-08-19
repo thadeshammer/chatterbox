@@ -3,16 +3,23 @@ import { api } from 'src/boot/axios';
 import { useAuthStore } from './auth';
 import { useCategoryStore } from './category';
 import { useLocalStorage } from '@vueuse/core'
+import { useRoute } from 'vue-router';
 import urlUtil from '../utilities/url-util'
 
 export const useBoardStore = defineStore('board', {
   state: () => ({
     boardCreate: {},
     boards: useLocalStorage('boards', []),
+    route: useRoute()
   }),
   getters: {
     getByName: (state) => (name) => {
       var board = state.boards.find(x => x.name === name)
+      return board
+    },
+    getFromRoute: (state) => () => {
+      const boardDecode = urlUtil.urlDecode(state.route.params.board)
+      var board = state.boards.find(x => x.name === boardDecode)
       return board
     }
   },
@@ -62,6 +69,11 @@ export const useBoardStore = defineStore('board', {
         var path = '/board/' + enc + '/category/' + categoryEnc
         this.$router.push(path)
       }
+    },
+    navigateAdmin() {
+
+      var path = '/board/' + this.route.params.board + '/admin'
+      this.$router.push(path)
     },
     init() {
       if (this.categories != null) {

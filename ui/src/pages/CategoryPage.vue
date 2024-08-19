@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { watch, ref, onBeforeMount } from 'vue'
+import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 import PostList from '../components/PostList.vue'
 import { useCategoryStore } from 'src/stores/category'
@@ -24,14 +24,14 @@ const categoryStore = useCategoryStore()
 const boardStore = useBoardStore()
 const postStore = usePostStore()
 const route = useRoute()
-const isCreatePost = ref(false)
-const categoryDecode = urlUtil.urlDecode(route.params.category)
+var categoryDecode = urlUtil.urlDecode(route.params.category)
 var boardDecode = urlUtil.urlDecode(route.params.board)
 init()
 watch(
   () => route.params.category,
   (newId, oldId) => {
     categoryDecode = urlUtil.urlDecode(newId)
+    init()
   }
 )
 watch(

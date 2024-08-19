@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios'
 import { useLocalStorage } from '@vueuse/core'
+import { useAuthStore } from './auth';
+import { useBoardStore } from './board';
 import urlUtil from 'src/utilities/url-util';
 
 export const useCategoryStore = defineStore('category', {
   state: () => ({
     categories: [],
-    selectedCategory: useLocalStorage('selectedCategory', {})
+    selectedCategory: useLocalStorage('selectedCategory', {}),
+    categoryCreate: useLocalStorage('categoryCreate', {})
   }),
   getters: {
     getById: (state) => (id) => state.categories.find(x => x.id === id),
@@ -17,6 +20,16 @@ export const useCategoryStore = defineStore('category', {
       this.selectedCategory = category
     },
     async create(body) {
+      if (!body) {
+        const as = useAuthStore()
+        const bs = useBoardStore()
+        body = {
+          name: this.categoryCreate.name,
+          description: this.categoryCreate.description,
+          user_id: as.user.id,
+          board_id: bs.getFromRoute().id
+        }
+      }
       /*{
         "name": "string",
         "description": "string",
@@ -28,7 +41,6 @@ export const useCategoryStore = defineStore('category', {
         console.error(good)
         return
       }
-      this.categories = good.data
     },
     async get(board) {
       var good = await api.get("/category", { params: { board_id: board.id }})
